@@ -73,6 +73,9 @@
                         <td class="px-6 py-4 font-medium text-slate-400">{{ $index + 1 }}</td>
                         <td class="px-6 py-4 font-semibold text-slate-800">
                             {{ $item->jemaat ? $item->jemaat->nama_jemaat : 'Hamba Allah (Anonim)' }}
+                            @if($item->jemaat && $item->jemaat->rayon)
+                            <div class="text-[10px] text-slate-400 font-normal mt-0.5"><i data-lucide="map-pin" class="w-3 h-3 inline-block mr-0.5"></i>{{ $item->jemaat->rayon->nama_rayon }}</div>
+                            @endif
                         </td>
                         <td class="px-6 py-4">{{ date('d - M - Y', strtotime($item->tanggal)) }}</td>
                         <td class="px-6 py-4 text-slate-500">{{ $item->keterangan ?? '-' }}</td>
