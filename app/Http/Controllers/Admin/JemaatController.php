@@ -13,7 +13,7 @@ class JemaatController extends Controller
 {
     public function index($church_slug)
     {
-        $jemaats = Jemaat::with('rayon')->orderBy('nama_jemaat', 'asc')->get();
+        $jemaats = Jemaat::with(['rayon', 'user'])->orderBy('nama_jemaat', 'asc')->get();
         $rayons = Rayon::orderBy('nama_rayon', 'asc')->get();
 
         // Calculations for the 4 summary cards mentioned in thesis Gambar IV.19 / Line 989

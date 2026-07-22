@@ -115,14 +115,21 @@
                             @endif
                         </td>
                         <td class="px-6 py-4 text-right space-x-2">
-                            <form method="POST" action="{{ route('admin.jemaat.buat-akun', ['church_slug' => request()->route('church_slug'), 'id_jemaat' => $jemaat->id_jemaat]) }}" class="inline">
-                                @csrf
-                                <button type="submit" onclick="return confirm('Buat akun otomatis untuk Jemaat ini? Username akan dibuat dari nama jemaat, dan password default adalah jemaat123.')"
-                                        class="inline-flex items-center space-x-1 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 text-xs font-semibold rounded-lg transition-colors">
-                                    <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
-                                    <span>Buat Akun</span>
-                                </button>
-                            </form>
+                            @if($jemaat->user)
+                                <span class="inline-flex items-center space-x-1 px-3 py-1.5 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-lg border border-emerald-100 cursor-help" title="Akun Jemaat (Password Default: jemaat123)">
+                                    <i data-lucide="user-check" class="w-3.5 h-3.5"></i>
+                                    <span>{{ $jemaat->user->username }}</span>
+                                </span>
+                            @else
+                                <form method="POST" action="{{ route('admin.jemaat.buat-akun', ['church_slug' => request()->route('church_slug'), 'id_jemaat' => $jemaat->id_jemaat]) }}" class="inline">
+                                    @csrf
+                                    <button type="submit" onclick="return confirm('Buat akun otomatis untuk Jemaat ini? Username akan dibuat dari nama jemaat, dan password default adalah jemaat123.')"
+                                            class="inline-flex items-center space-x-1 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 text-xs font-semibold rounded-lg transition-colors">
+                                        <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+                                        <span>Buat Akun</span>
+                                    </button>
+                                </form>
+                            @endif
                             <button @click="editData = { id_jemaat: '{{ $jemaat->id_jemaat }}', nama_jemaat: '{{ $jemaat->nama_jemaat }}', alamat: '{{ $jemaat->alamat }}', no_hp: '{{ $jemaat->no_hp }}', id_rayon: '{{ $jemaat->id_rayon }}', status: '{{ $jemaat->status }}' }; openEditModal = true"
                                     class="inline-flex items-center space-x-1 px-3 py-1.5 bg-slate-100 hover:bg-primary-50 text-slate-600 hover:text-primary-600 text-xs font-semibold rounded-lg transition-colors">
                                 <i data-lucide="edit" class="w-3.5 h-3.5"></i>

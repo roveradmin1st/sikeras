@@ -24,4 +24,9 @@ class Jemaat extends Model
     {
         return $this->belongsTo(Rayon::class, 'id_rayon', 'id_rayon');
     }
+
+    public function user()
+    {
+        return $this->hasOne(User::class, 'id_jemaat', 'id_jemaat');
+    }
 }
