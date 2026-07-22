@@ -3,7 +3,7 @@
 @section('title', 'Manajemen User - GPdI Mahanaim')
 
 @section('content')
-<div class="space-y-8" x-data="{ openAddModal: false, openEditModal: false, addRole: 'admin', editData: { id_user: '', nama: '', username: '', role: 'admin', status: 'aktif', id_jemaat: '' } }">
+<div class="space-y-8" x-data="{ openAddModal: false, openEditModal: false, editData: { id_user: '', nama: '', username: '', role: 'admin', status: 'aktif', id_jemaat: '' }, addRole: 'admin' }">
     
     <!-- Header & Navigation -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white/60 backdrop-blur-md p-6 rounded-2xl border border-white/60">
