@@ -53,7 +53,7 @@ class BendaharaPembangunanController extends Controller
         return redirect()->back()->with('success', 'Komitmen Janji Iman baru berhasil didaftarkan.');
     }
 
-    public function janjiUpdate(Request $request, $id)
+    public function janjiUpdate(Request $request, $church_slug, $id)
     {
         $request->validate([
             'id_jemaat' => 'required|integer',
@@ -68,7 +68,7 @@ class BendaharaPembangunanController extends Controller
         return redirect()->back()->with('success', 'Data komitmen Janji Iman berhasil diperbarui.');
     }
 
-    public function janjiDestroy($id)
+    public function janjiDestroy($church_slug, $id)
     {
         $item = JanjiIman::findOrFail($id);
         
@@ -172,7 +172,7 @@ class BendaharaPembangunanController extends Controller
         }
     }
 
-    public function bayarUpdate(Request $request, $id)
+    public function bayarUpdate(Request $request, $church_slug, $id)
     {
         $request->validate([
             'tanggal_bayar' => 'required|date',
@@ -234,7 +234,7 @@ class BendaharaPembangunanController extends Controller
         }
     }
 
-    public function bayarDestroy($id)
+    public function bayarDestroy($church_slug, $id)
     {
         $bayar = PembayaranJanji::findOrFail($id);
         $janji = JanjiIman::findOrFail($bayar->id_janji);

@@ -23,7 +23,7 @@ class PendetaController extends Controller
         return view('pendeta.approval_kas', compact('items'));
     }
 
-    public function approveKas(Request $request, $id)
+    public function approveKas(Request $request, $church_slug, $id)
     {
         $transaksi = TransaksiKas::findOrFail($id);
         $transaksi->update(['status' => 'disetujui']);
@@ -31,7 +31,7 @@ class PendetaController extends Controller
         return redirect()->back()->with('success', 'Transaksi Kas berhasil disetujui.');
     }
 
-    public function rejectKas(Request $request, $id)
+    public function rejectKas(Request $request, $church_slug, $id)
     {
         $request->validate([
             'alasan_penolakan' => 'required|string|max:255'
@@ -61,7 +61,7 @@ class PendetaController extends Controller
         return view('pendeta.approval_janji', compact('items'));
     }
 
-    public function approveJanji(Request $request, $id)
+    public function approveJanji(Request $request, $church_slug, $id)
     {
         $transaksi = TransaksiKas::findOrFail($id);
         $transaksi->update(['status' => 'disetujui']);
@@ -69,7 +69,7 @@ class PendetaController extends Controller
         return redirect()->back()->with('success', 'Setoran Janji Iman berhasil disetujui.');
     }
 
-    public function rejectJanji(Request $request, $id)
+    public function rejectJanji(Request $request, $church_slug, $id)
     {
         $request->validate([
             'alasan_penolakan' => 'required|string|max:255'

@@ -56,7 +56,7 @@ class BendaharaKasController extends Controller
         return redirect()->back()->with('success', 'Data persembahan mingguan berhasil dicatat. Menunggu persetujuan Pendeta.');
     }
 
-    public function persembahanUpdate(Request $request, $id)
+    public function persembahanUpdate(Request $request, $church_slug, $id)
     {
         $request->validate([
             'tanggal' => 'required|date',
@@ -91,7 +91,7 @@ class BendaharaKasController extends Controller
         return redirect()->back()->with('success', 'Data persembahan mingguan berhasil diperbarui.');
     }
 
-    public function persembahanDestroy($id)
+    public function persembahanDestroy($church_slug, $id)
     {
         $item = TransaksiKas::findOrFail($id);
 
@@ -155,7 +155,7 @@ class BendaharaKasController extends Controller
         return redirect()->back()->with('success', 'Data donasi jemaat berhasil dicatat. Menunggu persetujuan Pendeta.');
     }
 
-    public function donasiUpdate(Request $request, $id)
+    public function donasiUpdate(Request $request, $church_slug, $id)
     {
         $request->validate([
             'tanggal' => 'required|date',
@@ -189,7 +189,7 @@ class BendaharaKasController extends Controller
         return redirect()->back()->with('success', 'Data donasi jemaat berhasil diperbarui.');
     }
 
-    public function donasiDestroy($id)
+    public function donasiDestroy($church_slug, $id)
     {
         $item = TransaksiKas::findOrFail($id);
 
@@ -269,7 +269,7 @@ class BendaharaKasController extends Controller
         return redirect()->back()->with('success', 'Catatan transaksi kas berhasil disimpan. Menunggu persetujuan Pendeta.');
     }
 
-    public function transaksiUpdate(Request $request, $id)
+    public function transaksiUpdate(Request $request, $church_slug, $id)
     {
         $request->validate([
             'tanggal' => 'required|date',
@@ -314,7 +314,7 @@ class BendaharaKasController extends Controller
         return redirect()->back()->with('success', 'Catatan transaksi kas berhasil diperbarui.');
     }
 
-    public function transaksiDestroy($id)
+    public function transaksiDestroy($church_slug, $id)
     {
         $item = TransaksiKas::findOrFail($id);
 
