@@ -12,8 +12,10 @@ return new class extends Migration
             $table->id('id_church');
             $table->string('nama_gereja');
             $table->string('slug')->unique();
-            $table->string('alamat');
+            $table->text('alamat')->nullable();
             $table->string('kontak');
+            $table->string('no_telp', 20)->nullable();
+            $table->string('path_logo')->nullable();
             $table->enum('status', ['aktif', 'nonaktif', 'trial'])->default('aktif');
             $table->timestamps();
         });
