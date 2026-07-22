@@ -50,17 +50,19 @@ class PortalJemaatController extends Controller
         // Ambil data janji iman (komitmen) milik jemaat ini
         $janjiImanList = JanjiIman::where('id_jemaat', $user->id_jemaat)
             ->with(['pembayaran' => function($q) {
-                $q->orderBy('tanggal_bayar', 'desc');
+                $q->join('transaksi_kas', 'pembayaran_janji.id_transaksi', '=', 'transaksi_kas.id_transaksi')
+                  ->where('transaksi_kas.status', 'disetujui')
+                  ->orderBy('tanggal_bayar', 'desc');
             }])
-            ->orderBy('tanggal_janji', 'desc')
+            ->orderBy('tanggal_mulai', 'desc')
             ->get();
 
         // Hitung persentase untuk masing-masing janji iman
         foreach ($janjiImanList as $janji) {
-            $totalDibayar = $janji->pembayaran->where('status', 'valid')->sum('nominal_bayar');
+            $totalDibayar = $janji->pembayaran->sum('jumlah_bayar');
             $janji->total_dibayar = $totalDibayar;
-            $janji->sisa = $janji->nominal_janji - $totalDibayar;
-            $janji->persentase = $janji->nominal_janji > 0 ? min(100, round(($totalDibayar / $janji->nominal_janji) * 100)) : 0;
+            $janji->sisa = $janji->total_janji - $totalDibayar;
+            $janji->persentase = $janji->total_janji > 0 ? min(100, round(($totalDibayar / $janji->total_janji) * 100)) : 0;
         }
 
         // Riwayat Transaksi Pembangunan (Donasi Pembangunan dari jemaat ini)

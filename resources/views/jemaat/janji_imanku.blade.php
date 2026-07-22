@@ -38,9 +38,9 @@
                     <div class="flex justify-between items-start mb-4">
                         <div>
                             <span class="px-2.5 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold rounded-full mb-2 inline-block">
-                                Mulai: {{ date('M Y', strtotime($janji->tanggal_janji)) }}
+                                Mulai: {{ date('M Y', strtotime($janji->tanggal_mulai)) }}
                             </span>
-                            <h3 class="text-lg font-black text-slate-800">Rp. {{ number_format($janji->nominal_janji, 0, ',', '.') }}</h3>
+                            <h3 class="text-lg font-black text-slate-800">Rp. {{ number_format($janji->total_janji, 0, ',', '.') }}</h3>
                         </div>
                         @if($janji->sisa <= 0)
                             <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center" title="Lunas">
