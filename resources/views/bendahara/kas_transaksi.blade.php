@@ -244,9 +244,9 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1.5">Tipe Transaksi</label>
-                        <select name="tipe" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs" :value="editItem ? (editItem.debit > 0 ? 'masuk' : 'keluar') : 'masuk'">
-                            <option value="masuk">Pemasukan (Debit)</option>
-                            <option value="keluar">Pengeluaran (Kredit)</option>
+                        <select name="tipe" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs">
+                            <option value="masuk" :selected="editItem && editItem.debit > 0">Pemasukan (Debit)</option>
+                            <option value="keluar" :selected="editItem && editItem.kredit > 0">Pengeluaran (Kredit)</option>
                         </select>
                     </div>
                     <div>
@@ -273,20 +273,20 @@
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1.5">Kategori Transaksi</label>
-                    <select name="id_kategori" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs" :value="editItem ? editItem.id_kategori : ''">
+                    <select name="id_kategori" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs">
                         <option value="">-- Pilih Kategori --</option>
                         @foreach($kategoriList as $kategori)
-                            <option value="{{ $kategori->id_kategori }}">{{ $kategori->nama_kategori }} ({{ ucfirst($kategori->jenis) }})</option>
+                            <option value="{{ $kategori->id_kategori }}" :selected="editItem && editItem.id_kategori == {{ $kategori->id_kategori }}">{{ $kategori->nama_kategori }} ({{ ucfirst($kategori->jenis) }})</option>
                         @endforeach
                     </select>
                 </div>
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1.5">Hubungkan Jemaat (Opsional)</label>
-                    <select name="id_jemaat" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs" :value="editItem ? editItem.id_jemaat : ''">
-                        <option value="">-- Tidak Ada Relasi --</option>
+                    <select name="id_jemaat" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs">
+                        <option value="" :selected="editItem && !editItem.id_jemaat">-- Tidak Ada Relasi --</option>
                         @foreach($jemaatList as $jemaat)
-                            <option value="{{ $jemaat->id_jemaat }}">{{ $jemaat->nama_jemaat }}</option>
+                            <option value="{{ $jemaat->id_jemaat }}" :selected="editItem && editItem.id_jemaat == {{ $jemaat->id_jemaat }}">{{ $jemaat->nama_jemaat }}</option>
                         @endforeach
                     </select>
                 </div>

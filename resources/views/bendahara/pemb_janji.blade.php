@@ -123,9 +123,9 @@
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1.5">Anggota Jemaat</label>
-                    <select name="id_jemaat" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs" :value="editItem ? editItem.id_jemaat : ''">
+                    <select name="id_jemaat" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs">
                         @foreach($jemaatList as $jemaat)
-                            <option value="{{ $jemaat->id_jemaat }}">{{ $jemaat->nama_jemaat }}</option>
+                            <option value="{{ $jemaat->id_jemaat }}" :selected="editItem && editItem.id_jemaat == {{ $jemaat->id_jemaat }}">{{ $jemaat->nama_jemaat }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -144,9 +144,9 @@
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1.5">Status Kelunasan</label>
-                    <select name="status" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs" :value="editItem ? editItem.status : 'belum_lunas'">
-                        <option value="belum_lunas">Belum Lunas</option>
-                        <option value="lunas">Lunas</option>
+                    <select name="status" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs">
+                        <option value="belum_lunas" :selected="editItem && editItem.status === 'belum_lunas'">Belum Lunas</option>
+                        <option value="lunas" :selected="editItem && editItem.status === 'lunas'">Lunas</option>
                     </select>
                 </div>
 
