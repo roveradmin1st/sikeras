@@ -24,6 +24,7 @@ class TransaksiKas extends Model
         'id_jemaat',
         'bukti_transaksi',
         'status',
+        'alasan_penolakan',
     ];
 
     public function kategori()

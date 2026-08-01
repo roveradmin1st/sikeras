@@ -12,6 +12,8 @@ use App\Models\Jemaat;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 
 class BendaharaPembangunanController extends Controller
 {
@@ -24,15 +26,31 @@ class BendaharaPembangunanController extends Controller
         return view('bendahara.pemb_janji_input', compact('jemaatList'));
     }
 
-    public function janjiIndex()
+    public function janjiIndex(Request $request)
     {
-        $items = JanjiIman::with('jemaat')
-            ->orderBy('tanggal_mulai', 'desc')
-            ->get();
+        $bulan = $request->input('bulan');
+        $tahun = $request->input('tahun');
+        $tanggal = $request->input('tanggal');
+
+        $query = JanjiIman::with('jemaat')
+            ->orderBy('tanggal_mulai', 'desc');
+
+        if ($tanggal) {
+            $query->whereDate('tanggal_mulai', $tanggal);
+        } else {
+            if ($bulan) {
+                $query->whereMonth('tanggal_mulai', $bulan);
+            }
+            if ($tahun) {
+                $query->whereYear('tanggal_mulai', $tahun);
+            }
+        }
+
+        $items = $query->get();
 
         $jemaatList = Jemaat::where('status', 'aktif')->orderBy('nama_jemaat', 'asc')->get();
 
-        return view('bendahara.pemb_janji', compact('items', 'jemaatList'));
+        return view('bendahara.pemb_janji', compact('items', 'jemaatList', 'bulan', 'tahun', 'tanggal'));
     }
 
     public function janjiStore(Request $request)
@@ -93,18 +111,34 @@ class BendaharaPembangunanController extends Controller
         return view('bendahara.pemb_bayar_input', compact('janjiList'));
     }
 
-    public function bayarIndex()
+    public function bayarIndex(Request $request)
     {
-        $items = PembayaranJanji::with(['janjiIman.jemaat', 'user'])
-            ->orderBy('tanggal_bayar', 'desc')
-            ->get();
+        $bulan = $request->input('bulan');
+        $tahun = $request->input('tahun');
+        $tanggal = $request->input('tanggal');
+
+        $query = PembayaranJanji::with(['janjiIman.jemaat', 'user'])
+            ->orderBy('tanggal_bayar', 'desc');
+
+        if ($tanggal) {
+            $query->whereDate('tanggal_bayar', $tanggal);
+        } else {
+            if ($bulan) {
+                $query->whereMonth('tanggal_bayar', $bulan);
+            }
+            if ($tahun) {
+                $query->whereYear('tanggal_bayar', $tahun);
+            }
+        }
+
+        $items = $query->get();
 
         // Load active pledges that are not yet fully paid
         $janjiList = JanjiIman::with('jemaat')
             ->where('status', 'belum_lunas')
             ->get();
 
-        return view('bendahara.pemb_bayar', compact('items', 'janjiList'));
+        return view('bendahara.pemb_bayar', compact('items', 'janjiList', 'bulan', 'tahun', 'tanggal'));
     }
 
     public function bayarStore(Request $request)
@@ -208,6 +242,8 @@ class BendaharaPembangunanController extends Controller
                 'tanggal' => $request->tanggal_bayar,
                 'debit' => $request->jumlah_bayar,
                 'bukti_transaksi' => $buktiPath,
+                'status' => 'pending',
+                'alasan_penolakan' => null,
             ]);
 
             // Update payment record
@@ -270,18 +306,63 @@ class BendaharaPembangunanController extends Controller
     // ==========================================
     // 3. DAFTAR JANJI IMAN BELUM LUNAS
     // ==========================================
-    public function belumLunasIndex()
+    public function belumLunasIndex(Request $request)
     {
-        // Query pledges that are not fully paid
-        $items = JanjiIman::with(['jemaat', 'pembayaran'])
-            ->where('status', 'belum_lunas')
-            ->get();
+        $bulan = $request->input('bulan');
+        $tahun = $request->input('tahun');
+        $tanggal = $request->input('tanggal');
 
-        return view('bendahara.pemb_belum_lunas', compact('items'));
+        // Query pledges that are not fully paid
+        $query = JanjiIman::with(['jemaat', 'pembayaran'])
+            ->where('status', 'belum_lunas');
+            
+        if ($tanggal) {
+            $query->whereDate('tanggal_mulai', $tanggal);
+        } else {
+            if ($bulan) {
+                $query->whereMonth('tanggal_mulai', $bulan);
+            }
+            if ($tahun) {
+                $query->whereYear('tanggal_mulai', $tahun);
+            }
+        }
+
+        $items = $query->get();
+
+        return view('bendahara.pemb_belum_lunas', compact('items', 'bulan', 'tahun', 'tanggal'));
     }
 
-    public function laporanIndex()
+    public function laporanIndex(Request $request)
     {
-        return view('bendahara.pemb_laporan');
+        $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->toDateString());
+        $endDate = $request->input('end_date', Carbon::now()->endOfMonth()->toDateString());
+
+        // Fetch payments within the date range
+        $items = PembayaranJanji::with(['janjiIman.jemaat', 'user'])
+            ->whereBetween('tanggal_bayar', [$startDate, $endDate])
+            ->orderBy('tanggal_bayar', 'asc')
+            ->get();
+
+        $totalTerkumpul = $items->sum('jumlah_bayar');
+
+        return view('bendahara.pemb_laporan', compact('items', 'startDate', 'endDate', 'totalTerkumpul'));
+    }
+
+    public function laporanCetakPdf(Request $request)
+    {
+        $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->toDateString());
+        $endDate = $request->input('end_date', Carbon::now()->endOfMonth()->toDateString());
+
+        $items = PembayaranJanji::with(['janjiIman.jemaat', 'user'])
+            ->whereBetween('tanggal_bayar', [$startDate, $endDate])
+            ->orderBy('tanggal_bayar', 'asc')
+            ->get();
+
+        $totalTerkumpul = $items->sum('jumlah_bayar');
+        
+        $church = \App\Models\Church::where('slug', request()->route('church_slug'))->first();
+
+        $pdf = Pdf::loadView('bendahara.pdf_pemb_laporan', compact('items', 'startDate', 'endDate', 'totalTerkumpul', 'church'));
+        return $pdf->download('Laporan_Janji_Iman_' . $startDate . '_sd_' . $endDate . '.pdf');
     }
 }

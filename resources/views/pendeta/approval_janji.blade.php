@@ -3,7 +3,7 @@
 @section('title', 'Validasi Janji Iman - SIKER')
 
 @section('content')
-<div class="space-y-6" x-data="{ rejectItem: null }">
+<div class="space-y-6" x-data="{ rejectItem: null, activeTab: 'pending' }">
     
     <!-- Top Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
@@ -45,8 +45,18 @@
     </div>
     @endif
 
-    <!-- Data Table -->
-    <div class="bg-white rounded-2xl border border-slate-150 shadow-sm overflow-hidden">
+    <!-- Tabs Navigation -->
+    <div class="flex items-center space-x-4 border-b border-slate-200">
+        <button @click="activeTab = 'pending'" :class="{'text-primary-600 border-primary-600': activeTab === 'pending', 'text-slate-500 border-transparent hover:text-slate-700 hover:border-slate-300': activeTab !== 'pending'}" class="px-4 py-3 text-sm font-semibold border-b-2 transition-colors">
+            Menunggu Validasi ({{ count($pendingItems) }})
+        </button>
+        <button @click="activeTab = 'ditolak'" :class="{'text-rose-600 border-rose-600': activeTab === 'ditolak', 'text-slate-500 border-transparent hover:text-slate-700 hover:border-slate-300': activeTab !== 'ditolak'}" class="px-4 py-3 text-sm font-semibold border-b-2 transition-colors">
+            Ditolak ({{ count($rejectedItems) }})
+        </button>
+    </div>
+
+    <!-- Data Table Pending -->
+    <div x-show="activeTab === 'pending'" class="bg-white rounded-2xl border border-slate-150 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
@@ -61,7 +71,7 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 text-xs text-slate-600">
-                    @forelse($items as $index => $item)
+                    @forelse($pendingItems as $index => $item)
                     <tr class="hover:bg-slate-50/20 transition-colors">
                         <td class="px-6 py-4 font-medium text-slate-400">{{ $index + 1 }}</td>
                         <td class="px-6 py-4">{{ date('d - M - Y', strtotime($item->tanggal)) }}</td>
@@ -103,6 +113,54 @@
                         <td colspan="7" class="px-6 py-10 text-center text-slate-400">
                             <i data-lucide="check-circle" class="w-8 h-8 mx-auto text-slate-300 mb-2"></i>
                             Tidak ada setoran Janji Iman yang menunggu validasi.
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Data Table Ditolak -->
+    <div x-show="activeTab === 'ditolak'" x-cloak class="bg-white rounded-2xl border border-slate-150 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-50 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        <th class="px-6 py-4">No</th>
+                        <th class="px-6 py-4">Tanggal Setor</th>
+                        <th class="px-6 py-4">Nama Jemaat</th>
+                        <th class="px-6 py-4">Keterangan</th>
+                        <th class="px-6 py-4">Nominal Pembayaran</th>
+                        <th class="px-6 py-4">Alasan Penolakan</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-xs text-slate-600">
+                    @forelse($rejectedItems as $index => $item)
+                    <tr class="hover:bg-slate-50/20 transition-colors">
+                        <td class="px-6 py-4 font-medium text-slate-400">{{ $index + 1 }}</td>
+                        <td class="px-6 py-4">{{ date('d - M - Y', strtotime($item->tanggal)) }}</td>
+                        <td class="px-6 py-4 font-bold text-slate-800">
+                            {{ $item->jemaat ? $item->jemaat->nama_jemaat : '-' }}
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="text-[10px] text-slate-500">{{ $item->keterangan }}</span>
+                        </td>
+                        <td class="px-6 py-4 font-bold text-emerald-600">
+                            {{ $item->debit > 0 ? 'Rp. ' . number_format($item->debit, 0, ',', '.') : '-' }}
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-rose-50 text-rose-700 border border-rose-100 mb-1">
+                                Ditolak
+                            </span>
+                            <div class="text-[10px] text-rose-500 font-semibold">{{ $item->alasan_penolakan }}</div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="px-6 py-10 text-center text-slate-400">
+                            <i data-lucide="check-circle" class="w-8 h-8 mx-auto text-slate-300 mb-2"></i>
+                            Tidak ada setoran Janji Iman yang ditolak.
                         </td>
                     </tr>
                     @endforelse

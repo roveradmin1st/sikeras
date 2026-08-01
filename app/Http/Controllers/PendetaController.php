@@ -14,13 +14,20 @@ class PendetaController extends Controller
     public function approvalKasIndex()
     {
         // Fetch pending transactions specifically for general cash and rayon
-        $items = TransaksiKas::with(['user', 'jemaat', 'kategori'])
+        $pendingItems = TransaksiKas::with(['user', 'jemaat', 'kategori'])
             ->whereIn('jenis_kas', ['kas_umum', 'rayon'])
             ->where('status', 'pending')
             ->orderBy('tanggal', 'desc')
             ->get();
 
-        return view('pendeta.approval_kas', compact('items'));
+        // Fetch rejected transactions
+        $rejectedItems = TransaksiKas::with(['user', 'jemaat', 'kategori'])
+            ->whereIn('jenis_kas', ['kas_umum', 'rayon'])
+            ->where('status', 'ditolak')
+            ->orderBy('tanggal', 'desc')
+            ->get();
+
+        return view('pendeta.approval_kas', compact('pendingItems', 'rejectedItems'));
     }
 
     public function approveKas(Request $request, $church_slug, $id)
@@ -41,6 +48,7 @@ class PendetaController extends Controller
         
         $transaksi->update([
             'status' => 'ditolak',
+            'alasan_penolakan' => $request->alasan_penolakan,
         ]);
 
         return redirect()->back()->with('success', 'Transaksi Kas telah ditolak.');
@@ -52,13 +60,20 @@ class PendetaController extends Controller
     public function approvalJanjiIndex()
     {
         // Fetch pending building cash transactions
-        $items = TransaksiKas::with(['user', 'jemaat', 'kategori'])
+        $pendingItems = TransaksiKas::with(['user', 'jemaat', 'kategori'])
             ->where('jenis_kas', 'pembangunan')
             ->where('status', 'pending')
             ->orderBy('tanggal', 'desc')
             ->get();
 
-        return view('pendeta.approval_janji', compact('items'));
+        // Fetch rejected building cash transactions
+        $rejectedItems = TransaksiKas::with(['user', 'jemaat', 'kategori'])
+            ->where('jenis_kas', 'pembangunan')
+            ->where('status', 'ditolak')
+            ->orderBy('tanggal', 'desc')
+            ->get();
+
+        return view('pendeta.approval_janji', compact('pendingItems', 'rejectedItems'));
     }
 
     public function approveJanji(Request $request, $church_slug, $id)
@@ -76,7 +91,10 @@ class PendetaController extends Controller
         ]);
 
         $transaksi = TransaksiKas::findOrFail($id);
-        $transaksi->update(['status' => 'ditolak']);
+        $transaksi->update([
+            'status' => 'ditolak',
+            'alasan_penolakan' => $request->alasan_penolakan,
+        ]);
 
         return redirect()->back()->with('success', 'Setoran Janji Iman telah ditolak.');
     }

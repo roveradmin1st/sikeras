@@ -10,6 +10,8 @@ use App\Models\Jemaat;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 
 class BendaharaKasController extends Controller
 {
@@ -73,6 +75,8 @@ class BendaharaKasController extends Controller
         }
 
         $data = $request->only(['tanggal', 'debit', 'keterangan']);
+        $data['status'] = 'pending';
+        $data['alasan_penolakan'] = null;
 
         if ($request->hasFile('bukti_transaksi')) {
             // Delete old file
@@ -172,6 +176,8 @@ class BendaharaKasController extends Controller
         }
 
         $data = $request->only(['tanggal', 'debit', 'id_jemaat', 'keterangan']);
+        $data['status'] = 'pending';
+        $data['alasan_penolakan'] = null;
 
         if ($request->hasFile('bukti_transaksi')) {
             if ($item->bukti_transaksi && File::exists(public_path($item->bukti_transaksi))) {
@@ -221,7 +227,7 @@ class BendaharaKasController extends Controller
         ]);
 
         $items = TransaksiKas::whereNotIn('id_kategori', $excludedIds)
-            ->with(['kategori', 'jemaat'])
+            ->with(['kategori', 'jemaat.rayon'])
             ->orderBy('tanggal', 'desc')
             ->get();
 
@@ -289,6 +295,8 @@ class BendaharaKasController extends Controller
         }
 
         $data = $request->only(['tanggal', 'id_kategori', 'jenis_kas', 'id_jemaat', 'keterangan']);
+        $data['status'] = 'pending';
+        $data['alasan_penolakan'] = null;
 
         if ($request->tipe === 'masuk') {
             $data['debit'] = $request->jumlah;
@@ -334,11 +342,15 @@ class BendaharaKasController extends Controller
     // ==========================================
     // 4. BUKU KAS UMUM (LEDGER REAL-TIME)
     // ==========================================
-    public function bukuIndex()
+    public function bukuIndex(Request $request)
     {
+        $bulan = $request->input('bulan');
+        $tahun = $request->input('tahun');
+        $tanggal = $request->input('tanggal');
+
         // Fetch all approved transactions (Debit/Kredit) to show running balance
         $items = TransaksiKas::where('status', 'disetujui')
-            ->with(['kategori', 'jemaat'])
+            ->with(['kategori', 'jemaat.rayon'])
             ->orderBy('tanggal', 'asc')
             ->orderBy('id_transaksi', 'asc')
             ->get();
@@ -350,19 +362,88 @@ class BendaharaKasController extends Controller
             $item->running_saldo = $runningBalance;
         }
 
+        // Apply filters on the collection
+        if ($tanggal) {
+            $items = $items->where('tanggal', $tanggal);
+        } else {
+            if ($bulan) {
+                $items = $items->filter(function ($item) use ($bulan) {
+                    return \Carbon\Carbon::parse($item->tanggal)->format('m') == str_pad($bulan, 2, '0', STR_PAD_LEFT);
+                });
+            }
+            if ($tahun) {
+                $items = $items->filter(function ($item) use ($tahun) {
+                    return \Carbon\Carbon::parse($item->tanggal)->format('Y') == $tahun;
+                });
+            }
+        }
+
         // Reverse to show newest first in table
-        $items = $items->reverse();
+        $items = $items->reverse()->values();
 
-        return view('bendahara.kas_buku', compact('items'));
+        return view('bendahara.kas_buku', compact('items', 'bulan', 'tahun', 'tanggal'));
     }
 
-    public function laporanKasIndex()
+    public function laporanKasIndex(Request $request)
     {
-        return view('bendahara.laporan_kas');
+        $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->toDateString());
+        $endDate = $request->input('end_date', Carbon::now()->endOfMonth()->toDateString());
+        $idRayon = $request->input('id_rayon');
+
+        $query = TransaksiKas::whereIn('jenis_kas', ['kas_umum', 'rayon'])
+            ->where('status', 'disetujui')
+            ->whereBetween('tanggal', [$startDate, $endDate])
+            ->with(['kategori', 'jemaat.rayon']);
+
+        if ($idRayon) {
+            $query->whereHas('jemaat', function($q) use ($idRayon) {
+                $q->where('id_rayon', $idRayon);
+            });
+        }
+
+        $items = $query->orderBy('tanggal', 'asc')->get();
+
+        $totalDebit = $items->sum('debit');
+        $totalKredit = $items->sum('kredit');
+        $saldoAkhir = $totalDebit - $totalKredit;
+
+        $rayonList = \App\Models\Rayon::orderBy('nama_rayon', 'asc')->get();
+
+        return view('bendahara.laporan_kas', compact('items', 'startDate', 'endDate', 'idRayon', 'rayonList', 'totalDebit', 'totalKredit', 'saldoAkhir'));
     }
 
-    public function laporanRayonIndex()
+    public function laporanKasCetakPdf(Request $request)
     {
-        return view('bendahara.laporan_rayon');
+        $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->toDateString());
+        $endDate = $request->input('end_date', Carbon::now()->endOfMonth()->toDateString());
+        $idRayon = $request->input('id_rayon');
+
+        $query = TransaksiKas::whereIn('jenis_kas', ['kas_umum', 'rayon'])
+            ->where('status', 'disetujui')
+            ->whereBetween('tanggal', [$startDate, $endDate])
+            ->with(['kategori', 'jemaat.rayon']);
+
+        if ($idRayon) {
+            $query->whereHas('jemaat', function($q) use ($idRayon) {
+                $q->where('id_rayon', $idRayon);
+            });
+        }
+
+        $items = $query->orderBy('tanggal', 'asc')->get();
+
+        $totalDebit = $items->sum('debit');
+        $totalKredit = $items->sum('kredit');
+        $saldoAkhir = $totalDebit - $totalKredit;
+        
+        $church = \App\Models\Church::where('slug', request()->route('church_slug'))->first();
+
+        $rayonFilter = null;
+        if ($idRayon) {
+            $rayonObj = \App\Models\Rayon::find($idRayon);
+            $rayonFilter = $rayonObj ? $rayonObj->nama_rayon : null;
+        }
+
+        $pdf = Pdf::loadView('bendahara.pdf_laporan_kas', compact('items', 'startDate', 'endDate', 'totalDebit', 'totalKredit', 'saldoAkhir', 'church', 'rayonFilter'));
+        return $pdf->download('Laporan_Kas_' . $startDate . '_sd_' . $endDate . '.pdf');
     }
 }

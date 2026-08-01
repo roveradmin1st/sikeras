@@ -46,6 +46,43 @@
     </div>
     @endif
 
+    <!-- Filter Section -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm mb-6">
+        <form method="GET" action="{{ route('pembangunan.janji.index', ['church_slug' => request()->route('church_slug')]) }}" class="flex flex-col md:flex-row md:items-end gap-4">
+            
+            <div class="w-full md:w-1/4">
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5">Tanggal Mulai (Opsional)</label>
+                <input type="date" name="tanggal" value="{{ request('tanggal') }}" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs text-slate-600">
+            </div>
+
+            <div class="w-full md:w-1/4">
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5">Bulan Mulai (Opsional)</label>
+                <select name="bulan" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs text-slate-600">
+                    <option value="">Semua Bulan</option>
+                    @for($m=1; $m<=12; $m++)
+                        <option value="{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}" {{ request('bulan') == str_pad($m, 2, '0', STR_PAD_LEFT) ? 'selected' : '' }}>
+                            {{ date('F', mktime(0, 0, 0, $m, 1)) }}
+                        </option>
+                    @endfor
+                </select>
+            </div>
+
+            <div class="w-full md:w-1/4">
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5">Tahun Mulai (Opsional)</label>
+                <input type="number" name="tahun" value="{{ request('tahun') }}" placeholder="Contoh: {{ date('Y') }}" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs text-slate-600">
+            </div>
+
+            <div class="flex items-center space-x-2 w-full md:w-1/4">
+                <button type="submit" class="flex-1 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded-xl transition-colors shadow-sm">
+                    Terapkan Filter
+                </button>
+                <a href="{{ route('pembangunan.janji.index', ['church_slug' => request()->route('church_slug')]) }}" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition-colors text-center border border-slate-200">
+                    Reset
+                </a>
+            </div>
+        </form>
+    </div>
+
     <!-- Data Table (Matches Gambar IV.45) -->
     <div class="bg-white rounded-2xl border border-slate-150 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">

@@ -11,7 +11,7 @@
         <div class="absolute -left-20 -bottom-20 w-64 h-64 bg-blue-500 rounded-full blur-3xl opacity-20"></div>
         
         <div class="relative z-10">
-            <h1 class="text-3xl font-extrabold tracking-tight mb-2">Syalom, Pdt. {{ Auth::user()->nama }}!</h1>
+            <h1 class="text-3xl font-extrabold tracking-tight mb-2">Syalom, {{ Auth::user()->nama }}!</h1>
             <p class="text-primary-100 max-w-xl text-sm leading-relaxed mb-6">
                 Ini adalah ringkasan sistem informasi keuangan jemaat. Anda memiliki otoritas tertinggi untuk memvalidasi seluruh transaksi dari Bendahara Kas dan Bendahara Pembangunan sebelum data disahkan ke laporan.
             </p>

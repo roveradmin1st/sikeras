@@ -83,7 +83,12 @@
                             {{ str_replace('_', ' ', $item->jenis_kas) }}
                         </td>
                         <td class="px-6 py-4">
-                            <div class="font-medium text-slate-800">{{ $item->keterangan }}</div>
+                            <div class="font-medium text-slate-800">
+                                {{ $item->keterangan }}
+                                @if($item->jemaat && $item->jemaat->rayon)
+                                <br><span class="text-[10px] text-slate-500 font-normal">Rayon: {{ $item->jemaat->rayon->nama_rayon }}</span>
+                                @endif
+                            </div>
                             @if($item->jemaat)
                             <div class="text-[10px] text-slate-400 font-semibold mt-0.5">Terkait: {{ $item->jemaat->nama_jemaat }}</div>
                             @endif
@@ -109,6 +114,17 @@
                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-100">
                                 Disetujui
                             </span>
+                            @elseif($item->status === 'ditolak')
+                            <div class="flex flex-col gap-1">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-rose-50 text-rose-700 border border-rose-100 w-fit">
+                                    Ditolak
+                                </span>
+                                @if($item->alasan_penolakan)
+                                <span class="text-[10px] text-rose-500 font-semibold max-w-[120px] truncate" title="{{ $item->alasan_penolakan }}">
+                                    Alasan: {{ $item->alasan_penolakan }}
+                                </span>
+                                @endif
+                            </div>
                             @else
                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-50 text-amber-700 border border-amber-100">
                                 Pending
@@ -166,7 +182,6 @@
                         <label class="block text-xs font-semibold text-slate-600 mb-1.5">Sumber Kas</label>
                         <select name="jenis_kas" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs">
                             <option value="kas_umum">Kas Umum</option>
-                            <option value="rayon">Kas Rayon</option>
                         </select>
                     </div>
                 </div>
@@ -253,7 +268,6 @@
                         <label class="block text-xs font-semibold text-slate-600 mb-1.5">Sumber Kas</label>
                         <select name="jenis_kas" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs" :value="editItem ? editItem.jenis_kas : 'kas_umum'">
                             <option value="kas_umum">Kas Umum</option>
-                            <option value="rayon">Kas Rayon</option>
                         </select>
                     </div>
                 </div>

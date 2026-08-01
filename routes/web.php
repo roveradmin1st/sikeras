@@ -97,9 +97,9 @@ Route::group([
             Route::put('/transaksi/{id}', [BendaharaKasController::class, 'transaksiUpdate'])->name('transaksi.update');
             Route::delete('/transaksi/{id}', [BendaharaKasController::class, 'transaksiDestroy'])->name('transaksi.destroy');
 
-            // Laporan Kas & Laporan Rayon Masuk (Fase 4 - keselarasan Gambar IV.31)
+            // Laporan Kas (Fase 4 - keselarasan Gambar IV.31)
             Route::get('/laporan-kas', [BendaharaKasController::class, 'laporanKasIndex'])->name('laporan');
-            Route::get('/laporan-rayon', [BendaharaKasController::class, 'laporanRayonIndex'])->name('laporan-rayon');
+            Route::get('/laporan-kas/cetak', [BendaharaKasController::class, 'laporanKasCetakPdf'])->name('laporan.cetak');
         });
 
         // Bendahara Pembangunan Routes
@@ -123,6 +123,7 @@ Route::group([
 
             // Laporan Janji Iman (Fase 4 - keselarasan Gambar IV.42)
             Route::get('/laporan', [BendaharaPembangunanController::class, 'laporanIndex'])->name('laporan');
+            Route::get('/laporan/cetak', [BendaharaPembangunanController::class, 'laporanCetakPdf'])->name('laporan.cetak');
         });
         // Pendeta Routes
         Route::middleware(['role:pendeta'])->prefix('pendeta')->name('pendeta.')->group(function () {

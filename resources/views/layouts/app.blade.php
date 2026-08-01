@@ -173,11 +173,6 @@
                                 <i data-lucide="file-text" class="w-5 h-5"></i>
                                 <span>Laporan Kas</span>
                             </a>
-                            <a href="{{ route('kas.laporan-rayon', ['church_slug' => request()->route('church_slug')]) }}" 
-                               class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('kas.laporan-rayon') ? 'bg-black/20 text-white shadow-inner' : 'hover:bg-black/10 hover:text-white' }}">
-                                <i data-lucide="map" class="w-5 h-5"></i>
-                                <span>Laporan Rayon Masuk</span>
-                            </a>
                         @elseif(auth()->user()->role === 'bendahara_pembangunan')
                             <!-- Bendahara Pembangunan Sidebar Menu (100% Matches Gambar IV.42 Wireframe) -->
                             <a href="{{ route('dashboard', ['church_slug' => request()->route('church_slug')]) }}" 

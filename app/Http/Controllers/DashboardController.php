@@ -119,6 +119,29 @@ class DashboardController extends Controller
                     ->limit(5)
                     ->get();
 
+                // 5. Monthly Stats for Chart
+                $currentYear = Carbon::now()->year;
+                $monthlyStats = [];
+                for ($i = 1; $i <= 12; $i++) {
+                    $monthIncome = TransaksiKas::whereIn('jenis_kas', ['kas_umum', 'rayon'])
+                        ->where('status', 'disetujui')
+                        ->whereYear('tanggal', $currentYear)
+                        ->whereMonth('tanggal', $i)
+                        ->sum('debit');
+
+                    $monthExpense = TransaksiKas::whereIn('jenis_kas', ['kas_umum', 'rayon'])
+                        ->where('status', 'disetujui')
+                        ->whereYear('tanggal', $currentYear)
+                        ->whereMonth('tanggal', $i)
+                        ->sum('kredit');
+
+                    $monthlyStats[] = [
+                        'month' => Carbon::create()->month($i)->translatedFormat('F'),
+                        'income' => $monthIncome,
+                        'expense' => $monthExpense,
+                    ];
+                }
+
                 return view('dashboard.bendahara_kas', compact(
                     'saldoKasAktif',
                     'totalPemasukan',
@@ -126,7 +149,9 @@ class DashboardController extends Controller
                     'donasiUmum',
                     'pengeluaranMingguan',
                     'rayonStats',
-                    'recentTransactions'
+                    'recentTransactions',
+                    'monthlyStats',
+                    'currentYear'
                 ));
 
             case 'bendahara_pembangunan':
