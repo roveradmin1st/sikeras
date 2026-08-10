@@ -206,9 +206,95 @@ class DashboardController extends Controller
         return view('dashboard.backup');
     }
 
-    public function allReports($church_slug)
+    public function doBackup(Request $request, $church_slug)
     {
-        return view('dashboard.reports');
+        $dbHost = env('DB_HOST', '127.0.0.1');
+        $dbUsername = env('DB_USERNAME', 'root');
+        $dbPassword = env('DB_PASSWORD', '');
+        $dbName = env('DB_DATABASE', 'db_keuangan_gereja');
+        
+        $fileName = 'backup_' . date('Y-m-d_H-i-s') . '.sql';
+        $storagePath = storage_path('app/public/backups');
+        
+        if (!file_exists($storagePath)) {
+            mkdir($storagePath, 0755, true);
+        }
+        
+        $filePath = $storagePath . '/' . $fileName;
+        
+        $mysqldumpPath = 'c:\xampp\mysql\bin\mysqldump.exe'; // using XAMPP default
+        if (!file_exists($mysqldumpPath)) {
+            $mysqldumpPath = 'mysqldump'; // fallback
+        }
+
+        $passwordParam = $dbPassword ? "-p\"$dbPassword\"" : "";
+        $command = "$mysqldumpPath -u $dbUsername $passwordParam -h $dbHost $dbName > \"$filePath\"";
+        
+        exec($command, $output, $returnVar);
+        
+        if ($returnVar === 0) {
+            return response()->download($filePath)->deleteFileAfterSend(true);
+        } else {
+            return back()->withErrors(['msg' => 'Gagal melakukan backup database.']);
+        }
+    }
+
+    public function doRestore(Request $request, $church_slug)
+    {
+        $request->validate([
+            'backup_file' => 'required|file|mimes:sql,txt',
+        ]);
+
+        $file = $request->file('backup_file');
+        $filePath = $file->getRealPath();
+        
+        $dbHost = env('DB_HOST', '127.0.0.1');
+        $dbUsername = env('DB_USERNAME', 'root');
+        $dbPassword = env('DB_PASSWORD', '');
+        $dbName = env('DB_DATABASE', 'db_keuangan_gereja');
+
+        $mysqlPath = 'c:\xampp\mysql\bin\mysql.exe';
+        if (!file_exists($mysqlPath)) {
+            $mysqlPath = 'mysql';
+        }
+
+        $passwordParam = $dbPassword ? "-p\"$dbPassword\"" : "";
+        
+        $command = "$mysqlPath -u $dbUsername $passwordParam -h $dbHost $dbName < \"$filePath\"";
+        
+        exec($command, $output, $returnVar);
+
+        if ($returnVar === 0) {
+            return back()->with('success', 'Database berhasil di-restore!');
+        } else {
+            return back()->withErrors(['msg' => 'Gagal merestore database.']);
+        }
+    }
+
+    public function allReports(Request $request, $church_slug)
+    {
+        $bulan = $request->input('bulan');
+        $tahun = $request->input('tahun');
+        $tanggal = $request->input('tanggal');
+
+        $query = TransaksiKas::with(['kategori', 'jemaat'])
+            ->orderBy('tanggal', 'desc')
+            ->orderBy('id_transaksi', 'desc');
+
+        if ($tanggal) {
+            $query->whereDate('tanggal', $tanggal);
+        } else {
+            if ($bulan) {
+                $query->whereMonth('tanggal', $bulan);
+            }
+            if ($tahun) {
+                $query->whereYear('tanggal', $tahun);
+            }
+        }
+
+        $items = $query->get();
+
+        return view('dashboard.reports', compact('items', 'bulan', 'tahun', 'tanggal'));
     }
 
     public function settings($church_slug)

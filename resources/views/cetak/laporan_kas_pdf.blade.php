@@ -5,10 +5,14 @@
     <title>Laporan Kas - {{ $startDate }} sd {{ $endDate }}</title>
     <style>
         body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 12px; color: #333; }
-        .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
-        .header h1 { font-size: 18px; text-transform: uppercase; margin: 0; }
-        .header p { margin: 2px 0; font-size: 12px; }
-        .logo { width: 60px; height: 60px; position: absolute; top: 0; left: 0; }
+        .header { text-align: center; border-bottom: 3px solid #000; padding-bottom: 8px; margin-bottom: 2px; position: relative; }
+        .header-bottom-line { border-bottom: 1px solid #000; margin-bottom: 20px; }
+        .header h1 { font-size: 16px; margin: 0; line-height: 1.2; }
+        .header h2 { font-size: 18px; margin: 0; line-height: 1.2; font-weight: bold;}
+        .header h3 { font-size: 14px; margin: 0; line-height: 1.2; }
+        .header p { margin: 2px 0; font-size: 10px; }
+        .header .underline-text { text-decoration: underline; font-size: 12px; font-weight: bold; margin-top: 5px; margin-bottom: 2px;}
+        .logo { width: 70px; height: 85px; position: absolute; top: 0; left: 0; border: 1px solid #000; padding: 3px; object-fit: contain; }
         .title { text-align: center; font-size: 14px; font-weight: bold; margin-bottom: 15px; text-decoration: underline; }
         .info { margin-bottom: 15px; }
         table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
@@ -34,10 +38,16 @@
             <!-- DomPDF can read from public_path() -->
             <img src="{{ public_path('storage/' . $church->path_logo) }}" class="logo">
         @endif
-        <h1>{{ $church->nama_gereja ?? 'NAMA GEREJA / INSTANSI' }}</h1>
-        <p>{{ $church->alamat ?? 'Alamat Gereja' }}</p>
-        <p>Telp: {{ $church->no_telp ?? '-' }}</p>
+        <div style="padding-left: 80px;">
+            <h1>GEREJA PANTEKOSTA di INDONESIA</h1>
+            <h2>JEMAAT "MAHANAIM" SADA PERARIH</h2>
+            <h3>DESA PERARIH KEC.MERDEKA KAB KARO</h3>
+            <div class="underline-text">Lembagakeagamaan(GEREJA)</div>
+            <p>Kep.DIRJEN (KRISTEN) PROTESTAN DEPARTEMEN AGAMA RI.NO.30 TH.1988,TGL 3-2-1988</p>
+            <p>(d/hBeslitPemerintah No.33 tgl,3-6-1937,STBL No.368,ket.DEPAG RI.E VII/156/929/73.tgl.2-10-1937</p>
+        </div>
     </div>
+    <div class="header-bottom-line"></div>
 
     <div class="title">
         LAPORAN REKAPITULASI KAS GEREJA

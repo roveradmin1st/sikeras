@@ -65,8 +65,11 @@ Route::group([
             Route::put('/user/{id_user}', [UserController::class, 'update'])->name('user.update');
             Route::delete('/user/{id_user}', [UserController::class, 'destroy'])->name('user.destroy');
 
-            // Placeholders for other Admin Sidebar links
+            // Backup & Restore
             Route::get('/backup-restore', [DashboardController::class, 'backup'])->name('backup');
+            Route::post('/backup-restore/do-backup', [DashboardController::class, 'doBackup'])->name('backup.do');
+            Route::post('/backup-restore/do-restore', [DashboardController::class, 'doRestore'])->name('backup.restore');
+
             Route::get('/laporan-semua', [DashboardController::class, 'allReports'])->name('reports');
             
             // Pengaturan Instansi / Kop Surat

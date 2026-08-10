@@ -131,6 +131,7 @@ class PendetaController extends Controller
         // Kita ambil janji iman yang dibuat dalam rentang, atau pembayarannya dalam rentang.
         // Untuk sederhana, kita ambil semua transaksi pembangunan yang disetujui di rentang ini.
         $items = TransaksiKas::where('jenis_kas', 'pembangunan')
+            ->has('pembayaranJanji')
             ->where('status', 'disetujui')
             ->whereBetween('tanggal', [$startDate, $endDate])
             ->with(['jemaat'])
@@ -196,6 +197,7 @@ class PendetaController extends Controller
         $endDate = $request->input('end_date', date('Y-m-t'));
 
         $items = TransaksiKas::where('jenis_kas', 'pembangunan')
+            ->has('pembayaranJanji')
             ->where('status', 'disetujui')
             ->whereBetween('tanggal', [$startDate, $endDate])
             ->with(['jemaat'])
@@ -216,6 +218,7 @@ class PendetaController extends Controller
         $endDate = $request->input('end_date', date('Y-m-t'));
 
         $items = TransaksiKas::where('jenis_kas', 'pembangunan')
+            ->has('pembayaranJanji')
             ->where('status', 'disetujui')
             ->whereBetween('tanggal', [$startDate, $endDate])
             ->with(['jemaat'])

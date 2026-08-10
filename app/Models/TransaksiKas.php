@@ -41,4 +41,9 @@ class TransaksiKas extends Model
     {
         return $this->belongsTo(Jemaat::class, 'id_jemaat', 'id_jemaat');
     }
+
+    public function pembayaranJanji()
+    {
+        return $this->hasOne(PembayaranJanji::class, 'id_transaksi', 'id_transaksi');
+    }
 }

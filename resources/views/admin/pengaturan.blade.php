@@ -70,19 +70,37 @@
             
             <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">Preview Kop Surat</h3>
 
-            <div class="w-full bg-white p-4 rounded-lg shadow-sm border border-slate-200 flex items-center justify-center space-x-4">
-                <div class="w-16 h-16 bg-slate-100 rounded-md flex items-center justify-center overflow-hidden border border-slate-200 shrink-0">
-                    @if(isset($church) && $church->path_logo)
-                        <img src="{{ asset('storage/' . $church->path_logo) }}" alt="Logo" class="w-full h-full object-contain">
-                    @else
-                        <i data-lucide="image" class="w-6 h-6 text-slate-300"></i>
-                    @endif
+            <div class="w-full bg-white p-4 pt-6 pb-2 rounded-lg shadow-sm border border-slate-200">
+                <div class="flex items-start">
+                    <!-- LOGO -->
+                    <div class="w-20 h-24 shrink-0 flex items-center justify-center border border-slate-800 p-1 mr-4">
+                        @if(isset($church) && $church->path_logo)
+                            <img src="{{ asset('storage/' . $church->path_logo) }}" alt="Logo" class="max-w-full max-h-full object-contain">
+                        @else
+                            <div class="text-[10px] text-slate-400 text-center">No Logo</div>
+                        @endif
+                    </div>
+                    
+                    <!-- TEXT -->
+                    <div class="flex-1 text-center">
+                        <h1 class="text-sm md:text-base font-bold text-black m-0 leading-tight tracking-wide">
+                            GEREJA PANTEKOSTA di INDONESIA<br>
+                            JEMAAT "MAHANAIM" SADA PERARIH<br>
+                            DESA PERARIH KEC.MERDEKA KAB KARO
+                        </h1>
+                        <p class="text-[11px] md:text-xs font-bold text-black underline mt-1 mb-0 tracking-wide">
+                            Lembagakeagamaan(GEREJA)
+                        </p>
+                        <p class="text-[9px] md:text-[10px] text-black m-0 mt-0.5 leading-snug">
+                            Kep.DIRJEN (KRISTEN) PROTESTAN DEPARTEMEN AGAMA RI.NO.30 TH.1988,TGL 3-2-1988<br>
+                            (d/hBeslitPemerintah No.33 tgl,3-6-1937,STBL No.368,ket.DEPAG RI.E VII/156/929/73.tgl.2-10-1937
+                        </p>
+                    </div>
                 </div>
-                <div class="text-center flex-1 pr-4">
-                    <h2 class="text-sm font-black uppercase text-slate-900 leading-tight">{{ $church->nama_gereja ?? 'NAMA INSTANSI' }}</h2>
-                    <p class="text-[10px] text-slate-600 mt-0.5 leading-snug">{{ $church->alamat ?? 'Alamat instansi akan tampil di sini' }}</p>
-                    <p class="text-[10px] text-slate-500">Telp: {{ $church->no_telp ?? '-' }}</p>
-                </div>
+
+                <!-- DOUBLE LINE BORDER -->
+                <div class="w-full mt-4 border-b-[3px] border-black"></div>
+                <div class="w-full mt-[1.5px] border-b border-black"></div>
             </div>
             
             <div class="mt-6 text-center">
