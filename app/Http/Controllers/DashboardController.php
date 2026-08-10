@@ -155,13 +155,22 @@ class DashboardController extends Controller
                 ));
 
             case 'bendahara_pembangunan':
-                // Fetch stats for Bendahara Pembangunan Dashboard (matches Gambar IV.42)
+                // Fetch stats for Bendahara Pembangunan Dashboard
                 $totalJanjiIman = JanjiIman::sum('total_janji');
                 
                 // Terbayar Janji Iman (total pembayarans)
                 $terbayarJanjiIman = PembayaranJanji::sum('jumlah_bayar');
 
-                // Sisa Janji Iman
+                // Pengeluaran Kas Pembangunan
+                $pengeluaranPembangunan = TransaksiKas::where('jenis_kas', 'pembangunan')
+                    ->where('status', 'disetujui')
+                    ->sum('kredit');
+
+                // Saldo Aktif / Sisa Dana Pembangunan
+                $saldoPembangunan = $terbayarJanjiIman - $pengeluaranPembangunan;
+                if ($saldoPembangunan < 0) $saldoPembangunan = 0;
+
+                // Sisa Janji Iman (yang belum ditagih)
                 $sisaJanjiIman = $totalJanjiIman - $terbayarJanjiIman;
                 if ($sisaJanjiIman < 0) $sisaJanjiIman = 0;
 
@@ -178,6 +187,7 @@ class DashboardController extends Controller
                 return view('dashboard.bendahara_pemb', compact(
                     'totalJanjiIman',
                     'terbayarJanjiIman',
+                    'saldoPembangunan',
                     'sisaJanjiIman',
                     'activePledgesCount',
                     'recentPayments'

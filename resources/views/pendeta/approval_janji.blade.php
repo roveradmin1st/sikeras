@@ -65,7 +65,7 @@
                         <th class="px-6 py-4">Tanggal Setor</th>
                         <th class="px-6 py-4">Nama Jemaat</th>
                         <th class="px-6 py-4">Keterangan</th>
-                        <th class="px-6 py-4">Nominal Pembayaran</th>
+                        <th class="px-6 py-4">Nominal Transaksi</th>
                         <th class="px-6 py-4">Bukti</th>
                         <th class="px-6 py-4 text-center">Keputusan</th>
                     </tr>
@@ -81,8 +81,14 @@
                         <td class="px-6 py-4">
                             <span class="text-[10px] text-slate-500">{{ $item->keterangan }}</span>
                         </td>
-                        <td class="px-6 py-4 font-bold text-emerald-600">
-                            {{ $item->debit > 0 ? 'Rp. ' . number_format($item->debit, 0, ',', '.') : '-' }}
+                        <td class="px-6 py-4 font-bold">
+                            @if($item->debit > 0)
+                                <span class="text-emerald-600">Rp. {{ number_format($item->debit, 0, ',', '.') }}</span>
+                            @elseif($item->kredit > 0)
+                                <span class="text-rose-600">- Rp. {{ number_format($item->kredit, 0, ',', '.') }}</span>
+                            @else
+                                -
+                            @endif
                         </td>
                         <td class="px-6 py-4">
                             @if($item->bukti_transaksi)
@@ -131,7 +137,7 @@
                         <th class="px-6 py-4">Tanggal Setor</th>
                         <th class="px-6 py-4">Nama Jemaat</th>
                         <th class="px-6 py-4">Keterangan</th>
-                        <th class="px-6 py-4">Nominal Pembayaran</th>
+                        <th class="px-6 py-4">Nominal Transaksi</th>
                         <th class="px-6 py-4">Alasan Penolakan</th>
                     </tr>
                 </thead>
@@ -146,8 +152,14 @@
                         <td class="px-6 py-4">
                             <span class="text-[10px] text-slate-500">{{ $item->keterangan }}</span>
                         </td>
-                        <td class="px-6 py-4 font-bold text-emerald-600">
-                            {{ $item->debit > 0 ? 'Rp. ' . number_format($item->debit, 0, ',', '.') : '-' }}
+                        <td class="px-6 py-4 font-bold">
+                            @if($item->debit > 0)
+                                <span class="text-emerald-600">Rp. {{ number_format($item->debit, 0, ',', '.') }}</span>
+                            @elseif($item->kredit > 0)
+                                <span class="text-rose-600">- Rp. {{ number_format($item->kredit, 0, ',', '.') }}</span>
+                            @else
+                                -
+                            @endif
                         </td>
                         <td class="px-6 py-4">
                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-rose-50 text-rose-700 border border-rose-100 mb-1">

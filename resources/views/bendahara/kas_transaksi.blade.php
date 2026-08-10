@@ -3,7 +3,7 @@
 @section('title', 'Transaksi Kas Operasional - SIKER')
 
 @section('content')
-<div class="space-y-6" x-data="{ openAddModal: false, editItem: null }">
+<div class="space-y-6" x-data="{ openAddModal: false, editItem: null, addJenisKas: 'kas_umum', editJenisKas: 'kas_umum' }" x-effect="if(editItem) { editJenisKas = editItem.jenis_kas }">
     
     <!-- Top Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
@@ -173,15 +173,16 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1.5">Tipe Transaksi</label>
-                        <select name="tipe" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs">
-                            <option value="masuk">Pemasukan (Debit)</option>
+                        <select name="tipe" id="add_tipe" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs">
+                            <option value="masuk" x-bind:disabled="addJenisKas === 'pembangunan'">Pemasukan (Debit)</option>
                             <option value="keluar">Pengeluaran (Kredit)</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1.5">Sumber Kas</label>
-                        <select name="jenis_kas" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs">
+                        <select name="jenis_kas" x-model="addJenisKas" @change="if(addJenisKas === 'pembangunan') { document.getElementById('add_tipe').value = 'keluar' }" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs">
                             <option value="kas_umum">Kas Umum</option>
+                            <option value="pembangunan">Kas Pembangunan</option>
                         </select>
                     </div>
                 </div>
@@ -209,15 +210,6 @@
                     </select>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1.5">Hubungkan Jemaat (Opsional)</label>
-                    <select name="id_jemaat" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs">
-                        <option value="">-- Tidak Ada Relasi --</option>
-                        @foreach($jemaatList as $jemaat)
-                            <option value="{{ $jemaat->id_jemaat }}">{{ $jemaat->nama_jemaat }}</option>
-                        @endforeach
-                    </select>
-                </div>
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1.5">Keterangan Transaksi</label>
@@ -259,15 +251,16 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1.5">Tipe Transaksi</label>
-                        <select name="tipe" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs">
-                            <option value="masuk" :selected="editItem && editItem.debit > 0">Pemasukan (Debit)</option>
+                        <select name="tipe" id="edit_tipe" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs">
+                            <option value="masuk" :selected="editItem && editItem.debit > 0" x-bind:disabled="editJenisKas === 'pembangunan'">Pemasukan (Debit)</option>
                             <option value="keluar" :selected="editItem && editItem.kredit > 0">Pengeluaran (Kredit)</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1.5">Sumber Kas</label>
-                        <select name="jenis_kas" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs" :value="editItem ? editItem.jenis_kas : 'kas_umum'">
+                        <select name="jenis_kas" x-model="editJenisKas" @change="if(editJenisKas === 'pembangunan') { document.getElementById('edit_tipe').value = 'keluar' }" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs">
                             <option value="kas_umum">Kas Umum</option>
+                            <option value="pembangunan">Kas Pembangunan</option>
                         </select>
                     </div>
                 </div>
@@ -295,15 +288,6 @@
                     </select>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1.5">Hubungkan Jemaat (Opsional)</label>
-                    <select name="id_jemaat" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs">
-                        <option value="" :selected="editItem && !editItem.id_jemaat">-- Tidak Ada Relasi --</option>
-                        @foreach($jemaatList as $jemaat)
-                            <option value="{{ $jemaat->id_jemaat }}" :selected="editItem && editItem.id_jemaat == {{ $jemaat->id_jemaat }}">{{ $jemaat->nama_jemaat }}</option>
-                        @endforeach
-                    </select>
-                </div>
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1.5">Keterangan Transaksi</label>

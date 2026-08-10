@@ -27,11 +27,11 @@
             </h3>
         </div>
 
-        <!-- Terbayar / Terkumpul -->
+        <!-- Terbayar / Terkumpul (Dikurangi Pengeluaran) -->
         <div class="bg-white rounded-xl p-6 border border-slate-100 shadow-sm bg-emerald-50/20 border-emerald-100/30">
-            <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider text-center">Dana Terkumpul</p>
+            <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider text-center">Saldo Dana Pembangunan</p>
             <h3 class="text-base font-bold text-emerald-700 text-center mt-2.5">
-                Rp. {{ number_format($terbayarJanjiIman, 0, ',', '.') }}
+                Rp. {{ number_format($saldoPembangunan, 0, ',', '.') }}
             </h3>
         </div>
 
