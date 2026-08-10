@@ -191,10 +191,12 @@ class BendaharaPembangunanController extends Controller
                 'id_user' => Auth::id(),
             ]);
 
-            // 4. Update Pledge status to lunas if payments cover the total commitment
-            $totalTerbayar = $janji->pembayaran()->sum('jumlah_bayar') + $request->jumlah_bayar;
+            // 4. Update Pledge status
+            $totalTerbayar = $janji->pembayaran()->sum('jumlah_bayar');
             if ($totalTerbayar >= $janji->total_janji) {
                 $janji->update(['status' => 'lunas']);
+            } else {
+                $janji->update(['status' => 'belum_lunas']);
             }
 
             DB::commit();
