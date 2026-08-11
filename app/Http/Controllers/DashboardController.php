@@ -198,7 +198,19 @@ class DashboardController extends Controller
                 $pendingJanji = TransaksiKas::where('jenis_kas', 'pembangunan')->where('status', 'pending')->count();
                 return view('dashboard.pendeta', compact('pendingKas', 'pendingJanji'));
             case 'jemaat':
-                return view('dashboard.jemaat');
+                $transaksiUmum = TransaksiKas::whereIn('jenis_kas', ['kas_umum', 'rayon'])
+                    ->where('status', 'disetujui')
+                    ->get();
+                $saldoKas = $transaksiUmum->sum('debit') - $transaksiUmum->sum('kredit');
+
+                $janji = null;
+                if (Auth::user()->id_jemaat) {
+                    $janji = JanjiIman::where('id_jemaat', Auth::user()->id_jemaat)
+                        ->where('status', 'belum_lunas')
+                        ->first();
+                }
+
+                return view('dashboard.jemaat', compact('saldoKas', 'janji'));
             default:
                 Auth::logout();
                 return redirect()->route('login', ['church_slug' => $church_slug])

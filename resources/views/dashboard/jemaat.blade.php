@@ -25,7 +25,7 @@
             </div>
             <div>
                 <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Saldo Kas Umum Gereja (Terverifikasi)</p>
-                <h3 class="text-2xl font-bold text-slate-800 mt-1">Rp 0,00</h3>
+                <h3 class="text-2xl font-bold text-slate-800 mt-1">Rp {{ number_format($saldoKas, 0, ',', '.') }}</h3>
                 <p class="text-xs text-slate-400 mt-1">Status: Terbuka &amp; Transparan</p>
             </div>
         </div>
@@ -37,8 +37,13 @@
             </div>
             <div>
                 <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Komitmen Janji Iman Anda</p>
-                <h3 class="text-2xl font-bold text-slate-800 mt-1">Belum Ada Komitmen Aktif</h3>
-                <p class="text-xs text-slate-400 mt-1">Hubungi Bendahara Pembangunan untuk mendaftarkan komitmen baru Anda.</p>
+                @if($janji)
+                    <h3 class="text-2xl font-bold text-slate-800 mt-1">Rp {{ number_format($janji->total_janji, 0, ',', '.') }}</h3>
+                    <p class="text-xs text-slate-400 mt-1">Status: Belum Lunas. Terus semangat menyicil!</p>
+                @else
+                    <h3 class="text-2xl font-bold text-slate-800 mt-1">Belum Ada Komitmen Aktif</h3>
+                    <p class="text-xs text-slate-400 mt-1">Hubungi Bendahara Pembangunan untuk mendaftarkan komitmen baru Anda.</p>
+                @endif
             </div>
         </div>
     </div>
