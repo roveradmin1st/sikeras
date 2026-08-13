@@ -211,7 +211,11 @@
                 <td>
                     <p>Mengetahui,</p>
                     <p><strong>Gembala Sidang</strong></p>
-                    <div class="signature-name">Pdt. _________________</div>
+                    @php
+                        $pendeta = \App\Models\User::where('role', 'pendeta')->first();
+                        $namaPendeta = $pendeta ? $pendeta->nama : '_________________';
+                    @endphp
+                    <div class="signature-name">{{ $namaPendeta }}</div>
                 </td>
                 <td>
                     <p>Dibuat Oleh,</p>

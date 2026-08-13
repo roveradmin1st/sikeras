@@ -14,8 +14,8 @@
         <div class="flex items-center space-x-2">
             <!-- Quick indicator showing overall cash balance -->
             @php
-                $firstItem = $items->first();
-                $currentBalance = $firstItem ? $firstItem->running_saldo : 0;
+                $lastItem = $items->last();
+                $currentBalance = $lastItem ? $lastItem->running_saldo : 0;
             @endphp
             <div class="px-4 py-2 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-xl border border-emerald-100/50">
                 Saldo Saat Ini: Rp. {{ number_format($currentBalance, 0, ',', '.') }}
@@ -79,7 +79,7 @@
                 <tbody class="divide-y divide-slate-100 text-xs text-slate-600">
                     @forelse($items as $index => $item)
                     <tr class="hover:bg-slate-50/20 transition-colors">
-                        <td class="px-6 py-4 font-medium text-slate-400">{{ $items->count() - $index }}</td>
+                        <td class="px-6 py-4 font-medium text-slate-400">{{ $index + 1 }}</td>
                         <td class="px-6 py-4 font-semibold text-slate-800">{{ date('d - M - Y', strtotime($item->tanggal)) }}</td>
                         <td class="px-6 py-4">
                             <div class="font-medium text-slate-800">

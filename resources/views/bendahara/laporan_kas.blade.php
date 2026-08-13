@@ -77,6 +77,11 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 text-xs text-slate-600">
+                    <!-- Saldo Awal Row -->
+                    <tr class="bg-primary-50/50 font-semibold">
+                        <td class="px-6 py-3.5" colspan="3">Saldo Awal (Sebelum {{ date('d M Y', strtotime($startDate)) }})</td>
+                        <td class="px-6 py-3.5 text-right text-slate-800" colspan="2">Rp. {{ number_format($saldoAwal ?? 0, 0, ',', '.') }}</td>
+                    </tr>
                     @forelse($items as $item)
                     <tr class="hover:bg-slate-50/50 transition-colors">
                         <td class="px-6 py-3.5">{{ date('d M Y', strtotime($item->tanggal)) }}</td>

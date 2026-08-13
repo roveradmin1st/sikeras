@@ -71,11 +71,13 @@ class DashboardController extends Controller
                 $lastDayOfMonth = Carbon::now()->endOfMonth()->toDateString();
 
                 $persembahanMingguan = TransaksiKas::where('id_kategori', $idKatPersembahan)
+                    ->whereIn('jenis_kas', ['kas_umum', 'rayon'])
                     ->where('status', 'disetujui')
                     ->whereBetween('tanggal', [$firstDayOfMonth, $lastDayOfMonth])
                     ->sum('debit');
 
                 $donasiUmum = TransaksiKas::where('id_kategori', $idKatDonasi)
+                    ->whereIn('jenis_kas', ['kas_umum', 'rayon'])
                     ->where('status', 'disetujui')
                     ->whereBetween('tanggal', [$firstDayOfMonth, $lastDayOfMonth])
                     ->sum('debit');
@@ -83,7 +85,8 @@ class DashboardController extends Controller
                 // Weekly expenses (kredit) for current week
                 $startOfWeek = Carbon::now()->startOfWeek()->toDateString();
                 $endOfWeek = Carbon::now()->endOfWeek()->toDateString();
-                $pengeluaranMingguan = TransaksiKas::where('status', 'disetujui')
+                $pengeluaranMingguan = TransaksiKas::whereIn('jenis_kas', ['kas_umum', 'rayon'])
+                    ->where('status', 'disetujui')
                     ->whereBetween('tanggal', [$startOfWeek, $endOfWeek])
                     ->sum('kredit');
 

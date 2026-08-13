@@ -168,9 +168,14 @@
                                 <i data-lucide="arrow-left-right" class="w-5 h-5"></i>
                                 <span>Data Transaksi Kas</span>
                             </a>
+                            <a href="{{ route('kas.laporan.persembahan', ['church_slug' => request()->route('church_slug')]) }}" 
+                               class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('kas.laporan.persembahan*') ? 'bg-black/20 text-white shadow-inner' : 'hover:bg-black/10 hover:text-white' }}">
+                                <i data-lucide="file-bar-chart" class="w-5 h-5"></i>
+                                <span>Laporan Persembahan</span>
+                            </a>
                             <a href="{{ route('kas.laporan', ['church_slug' => request()->route('church_slug')]) }}" 
-                               class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('kas.laporan') ? 'bg-black/20 text-white shadow-inner' : 'hover:bg-black/10 hover:text-white' }}">
-                                <i data-lucide="file-text" class="w-5 h-5"></i>
+                               class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('kas.laporan') || request()->routeIs('kas.laporan.cetak') ? 'bg-black/20 text-white shadow-inner' : 'hover:bg-black/10 hover:text-white' }}">
+                                <i data-lucide="file-spreadsheet" class="w-5 h-5"></i>
                                 <span>Laporan Kas</span>
                             </a>
                         @elseif(auth()->user()->role === 'bendahara_pembangunan')

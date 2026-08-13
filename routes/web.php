@@ -11,10 +11,18 @@ use App\Http\Controllers\Bendahara\BendaharaKasController;
 use App\Http\Controllers\Bendahara\BendaharaPembangunanController;
 use App\Http\Controllers\PendetaController;
 
-// 1. Root redirect to the main church tenant GPdI Mahanaim
+// 1. Public Landing Pages
 Route::get('/', function () {
-    return redirect()->route('login', ['church_slug' => 'mahanaim']);
-});
+    return view('welcome');
+})->name('landing');
+
+Route::get('/profil-gereja', function () {
+    return view('profil_gereja');
+})->name('profil_gereja');
+
+Route::get('/pelayanan', function () {
+    return view('pelayanan');
+})->name('pelayanan');
 
 // 2. Tenant Scoped Routes
 Route::group([
@@ -101,6 +109,8 @@ Route::group([
             Route::delete('/transaksi/{id}', [BendaharaKasController::class, 'transaksiDestroy'])->name('transaksi.destroy');
 
             // Laporan Kas (Fase 4 - keselarasan Gambar IV.31)
+            Route::get('/laporan-persembahan', [BendaharaKasController::class, 'laporanPersembahanIndex'])->name('laporan.persembahan');
+            Route::get('/laporan-persembahan/cetak', [BendaharaKasController::class, 'laporanPersembahanCetakPdf'])->name('laporan.persembahan.cetak');
             Route::get('/laporan-kas', [BendaharaKasController::class, 'laporanKasIndex'])->name('laporan');
             Route::get('/laporan-kas/cetak', [BendaharaKasController::class, 'laporanKasCetakPdf'])->name('laporan.cetak');
         });

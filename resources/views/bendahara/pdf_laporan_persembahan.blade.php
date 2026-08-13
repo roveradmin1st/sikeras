@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Laporan Kas - {{ $church ? $church->nama_gereja : 'Gereja' }}</title>
+    <title>Laporan Persembahan Mingguan - {{ $church ? $church->nama_gereja : 'Gereja' }}</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -89,12 +89,11 @@
         .summary-table th, .summary-table td {
             border: 1px solid #ddd;
             padding: 8px;
-            text-align: right;
+            text-align: center;
             font-weight: bold;
         }
         .summary-table th {
             background-color: #f5f5f5;
-            text-align: center;
         }
 
         /* Main Data Table */
@@ -161,27 +160,18 @@
     </div>
 
     <!-- Title -->
-    <div class="report-title">Laporan Keuangan (Kas Umum)</div>
+    <div class="report-title">Laporan Keuangan (Persembahan Mingguan)</div>
     <div class="report-period">
         Periode: {{ date('d F Y', strtotime($startDate)) }} s/d {{ date('d F Y', strtotime($endDate)) }}
-        @if(!empty($rayonFilter))
-            <br>Tampilan Khusus: <strong>{{ $rayonFilter }}</strong>
-        @endif
     </div>
 
     <!-- Summary -->
     <table class="summary-table">
         <tr>
-            <th>Saldo Awal</th>
-            <th>Total Debit</th>
-            <th>Total Kredit</th>
-            <th>Saldo Akhir</th>
+            <th>Total Persembahan Mingguan (Periode Ini)</th>
         </tr>
         <tr>
-            <td>Rp. {{ number_format($saldoAwal ?? 0, 0, ',', '.') }}</td>
-            <td style="color: green;">Rp. {{ number_format($totalDebit, 0, ',', '.') }}</td>
-            <td style="color: red;">Rp. {{ number_format($totalKredit, 0, ',', '.') }}</td>
-            <td>Rp. {{ number_format($saldoAkhir, 0, ',', '.') }}</td>
+            <td style="color: green; font-size: 14px;">Rp. {{ number_format($totalPersembahan, 0, ',', '.') }}</td>
         </tr>
     </table>
 
@@ -189,36 +179,23 @@
     <table class="data-table">
         <thead>
             <tr>
-                <th width="5%">No</th>
-                <th width="15%">Tanggal</th>
-                <th width="15%">Kategori</th>
-                <th width="35%">Keterangan</th>
-                <th width="15%">Debit (Rp)</th>
-                <th width="15%">Kredit (Rp)</th>
+                <th width="10%">No</th>
+                <th width="20%">Tanggal</th>
+                <th width="45%">Keterangan</th>
+                <th width="25%">Nominal (Rp)</th>
             </tr>
         </thead>
         <tbody>
-            <tr style="background-color: #f9f9f9; font-weight: bold;">
-                <td colspan="4" class="text-center">Saldo Awal (Sebelum {{ date('d M Y', strtotime($startDate)) }})</td>
-                <td colspan="2" class="text-right">Rp. {{ number_format($saldoAwal ?? 0, 0, ',', '.') }}</td>
-            </tr>
             @forelse($items as $index => $item)
             <tr>
                 <td class="text-center">{{ $index + 1 }}</td>
                 <td class="text-center">{{ date('d/m/Y', strtotime($item->tanggal)) }}</td>
-                <td>{{ $item->kategori ? $item->kategori->nama_kategori : '-' }}</td>
-                <td>
-                    {{ $item->keterangan }}
-                    @if($item->jemaat && $item->jemaat->rayon)
-                    <br><small style="color: gray;">(Rayon: {{ $item->jemaat->rayon->nama_rayon }})</small>
-                    @endif
-                </td>
+                <td>{{ $item->keterangan }}</td>
                 <td class="text-right">{{ $item->debit > 0 ? number_format($item->debit, 0, ',', '.') : '-' }}</td>
-                <td class="text-right">{{ $item->kredit > 0 ? number_format($item->kredit, 0, ',', '.') : '-' }}</td>
             </tr>
             @empty
             <tr>
-                <td colspan="6" class="text-center">Tidak ada transaksi pada periode ini.</td>
+                <td colspan="4" class="text-center">Tidak ada data persembahan pada periode ini.</td>
             </tr>
             @endforelse
         </tbody>
