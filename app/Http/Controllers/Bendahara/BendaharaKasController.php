@@ -24,7 +24,7 @@ class BendaharaKasController extends Controller
         $id_kategori = $kategori ? $kategori->id_kategori : null;
 
         $items = TransaksiKas::where('id_kategori', $id_kategori)
-            ->orderBy('tanggal', 'desc')
+            ->orderBy('tanggal', 'asc')
             ->get();
 
         return view('bendahara.kas_persembahan', compact('items', 'id_kategori'));
@@ -122,7 +122,7 @@ class BendaharaKasController extends Controller
 
         $items = TransaksiKas::where('id_kategori', $id_kategori)
             ->with('jemaat.rayon')
-            ->orderBy('tanggal', 'desc')
+            ->orderBy('tanggal', 'asc')
             ->get();
 
         $jemaatList = Jemaat::where('status', 'aktif')->orderBy('nama_jemaat', 'asc')->get();

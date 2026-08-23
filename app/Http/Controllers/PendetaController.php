@@ -17,14 +17,14 @@ class PendetaController extends Controller
         $pendingItems = TransaksiKas::with(['user', 'jemaat', 'kategori'])
             ->whereIn('jenis_kas', ['kas_umum', 'rayon'])
             ->where('status', 'pending')
-            ->orderBy('tanggal', 'desc')
+            ->orderBy('tanggal', 'asc')
             ->get();
 
         // Fetch rejected transactions
         $rejectedItems = TransaksiKas::with(['user', 'jemaat', 'kategori'])
             ->whereIn('jenis_kas', ['kas_umum', 'rayon'])
             ->where('status', 'ditolak')
-            ->orderBy('tanggal', 'desc')
+            ->orderBy('tanggal', 'asc')
             ->get();
 
         return view('pendeta.approval_kas', compact('pendingItems', 'rejectedItems'));
@@ -63,14 +63,14 @@ class PendetaController extends Controller
         $pendingItems = TransaksiKas::with(['user', 'jemaat', 'kategori'])
             ->where('jenis_kas', 'pembangunan')
             ->where('status', 'pending')
-            ->orderBy('tanggal', 'desc')
+            ->orderBy('tanggal', 'asc')
             ->get();
 
         // Fetch rejected building cash transactions
         $rejectedItems = TransaksiKas::with(['user', 'jemaat', 'kategori'])
             ->where('jenis_kas', 'pembangunan')
             ->where('status', 'ditolak')
-            ->orderBy('tanggal', 'desc')
+            ->orderBy('tanggal', 'asc')
             ->get();
 
         return view('pendeta.approval_janji', compact('pendingItems', 'rejectedItems'));

@@ -33,7 +33,7 @@ class BendaharaPembangunanController extends Controller
         $tanggal = $request->input('tanggal');
 
         $query = JanjiIman::with('jemaat')
-            ->orderBy('tanggal_mulai', 'desc');
+            ->orderBy('tanggal_mulai', 'asc');
 
         if ($tanggal) {
             $query->whereDate('tanggal_mulai', $tanggal);
@@ -118,7 +118,7 @@ class BendaharaPembangunanController extends Controller
         $tanggal = $request->input('tanggal');
 
         $query = PembayaranJanji::with(['janjiIman.jemaat', 'user'])
-            ->orderBy('tanggal_bayar', 'desc');
+            ->orderBy('tanggal_bayar', 'asc');
 
         if ($tanggal) {
             $query->whereDate('tanggal_bayar', $tanggal);
@@ -316,7 +316,8 @@ class BendaharaPembangunanController extends Controller
 
         // Query pledges that are not fully paid
         $query = JanjiIman::with(['jemaat', 'pembayaran'])
-            ->where('status', 'belum_lunas');
+            ->where('status', 'belum_lunas')
+            ->orderBy('tanggal_mulai', 'asc');
             
         if ($tanggal) {
             $query->whereDate('tanggal_mulai', $tanggal);
