@@ -190,6 +190,7 @@ class DashboardController extends Controller
                 return view('dashboard.bendahara_pemb', compact(
                     'totalJanjiIman',
                     'terbayarJanjiIman',
+                    'pengeluaranPembangunan',
                     'saldoPembangunan',
                     'sisaJanjiIman',
                     'activePledgesCount',

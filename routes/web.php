@@ -137,6 +137,10 @@ Route::group([
             // Laporan Janji Iman (Fase 4 - keselarasan Gambar IV.42)
             Route::get('/laporan', [BendaharaPembangunanController::class, 'laporanIndex'])->name('laporan');
             Route::get('/laporan/cetak', [BendaharaPembangunanController::class, 'laporanCetakPdf'])->name('laporan.cetak');
+            
+            // Laporan Pengeluaran Pembangunan
+            Route::get('/laporan-pengeluaran', [BendaharaPembangunanController::class, 'laporanPengeluaranIndex'])->name('laporan.pengeluaran');
+            Route::get('/laporan-pengeluaran/cetak', [BendaharaPembangunanController::class, 'laporanPengeluaranCetakPdf'])->name('laporan.pengeluaran.cetak');
         });
         // Pendeta Routes
         Route::middleware(['role:pendeta'])->prefix('pendeta')->name('pendeta.')->group(function () {

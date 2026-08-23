@@ -227,6 +227,13 @@ class BendaharaKasController extends Controller
         ]);
 
         $items = TransaksiKas::whereNotIn('id_kategori', $excludedIds)
+            ->where(function($query) {
+                $query->whereIn('jenis_kas', ['kas_umum', 'rayon'])
+                      ->orWhere(function($q) {
+                          $q->where('jenis_kas', 'pembangunan')
+                            ->where('kredit', '>', 0);
+                      });
+            })
             ->with(['kategori', 'jemaat.rayon'])
             ->orderBy('tanggal', 'asc')
             ->orderBy('id_transaksi', 'asc')
@@ -351,6 +358,7 @@ class BendaharaKasController extends Controller
 
         // Fetch all approved transactions (Debit/Kredit) to show running balance
         $items = TransaksiKas::where('status', 'disetujui')
+            ->whereIn('jenis_kas', ['kas_umum', 'rayon'])
             ->with(['kategori', 'jemaat.rayon'])
             ->orderBy('tanggal', 'asc')
             ->orderBy('id_transaksi', 'asc')

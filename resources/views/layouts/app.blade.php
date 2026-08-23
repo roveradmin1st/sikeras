@@ -206,9 +206,14 @@
                                 <span>Daftar Janji Iman Belum Lunas</span>
                             </a>
                             <a href="{{ route('pembangunan.laporan', ['church_slug' => request()->route('church_slug')]) }}" 
-                               class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('pembangunan.laporan') ? 'bg-black/20 text-white shadow-inner' : 'hover:bg-black/10 hover:text-white' }}">
+                               class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('pembangunan.laporan') || request()->routeIs('pembangunan.laporan.cetak') ? 'bg-black/20 text-white shadow-inner' : 'hover:bg-black/10 hover:text-white' }}">
                                 <i data-lucide="file-spreadsheet" class="w-5 h-5"></i>
                                 <span>Laporan Janji Iman</span>
+                            </a>
+                            <a href="{{ route('pembangunan.laporan.pengeluaran', ['church_slug' => request()->route('church_slug')]) }}" 
+                               class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('pembangunan.laporan.pengeluaran*') ? 'bg-black/20 text-white shadow-inner' : 'hover:bg-black/10 hover:text-white' }}">
+                                <i data-lucide="file-minus" class="w-5 h-5"></i>
+                                <span>Laporan Pengeluaran Pembangunan</span>
                             </a>
                         @elseif(auth()->user()->role === 'pendeta')
                             <!-- Pendeta Sidebar Menu -->

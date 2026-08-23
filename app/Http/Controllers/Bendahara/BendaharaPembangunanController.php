@@ -367,4 +367,42 @@ class BendaharaPembangunanController extends Controller
         $pdf = Pdf::loadView('bendahara.pdf_pemb_laporan', compact('items', 'startDate', 'endDate', 'totalTerkumpul', 'church'));
         return $pdf->download('Laporan_Janji_Iman_' . $startDate . '_sd_' . $endDate . '.pdf');
     }
+
+    public function laporanPengeluaranIndex(Request $request)
+    {
+        $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->toDateString());
+        $endDate = $request->input('end_date', Carbon::now()->endOfMonth()->toDateString());
+
+        // Fetch expenditures in Kas Pembangunan
+        $items = TransaksiKas::where('jenis_kas', 'pembangunan')
+            ->where('kredit', '>', 0)
+            ->where('status', 'disetujui')
+            ->whereBetween('tanggal', [$startDate, $endDate])
+            ->orderBy('tanggal', 'asc')
+            ->get();
+
+        $totalPengeluaran = $items->sum('kredit');
+
+        return view('bendahara.pemb_laporan_pengeluaran', compact('items', 'startDate', 'endDate', 'totalPengeluaran'));
+    }
+
+    public function laporanPengeluaranCetakPdf(Request $request)
+    {
+        $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->toDateString());
+        $endDate = $request->input('end_date', Carbon::now()->endOfMonth()->toDateString());
+
+        $items = TransaksiKas::where('jenis_kas', 'pembangunan')
+            ->where('kredit', '>', 0)
+            ->where('status', 'disetujui')
+            ->whereBetween('tanggal', [$startDate, $endDate])
+            ->orderBy('tanggal', 'asc')
+            ->get();
+
+        $totalPengeluaran = $items->sum('kredit');
+        
+        $church = \App\Models\Church::where('slug', request()->route('church_slug'))->first();
+
+        $pdf = Pdf::loadView('bendahara.pdf_pemb_laporan_pengeluaran', compact('items', 'startDate', 'endDate', 'totalPengeluaran', 'church'));
+        return $pdf->download('Laporan_Pengeluaran_Pembangunan_' . $startDate . '_sd_' . $endDate . '.pdf');
+    }
 }

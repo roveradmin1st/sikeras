@@ -18,7 +18,7 @@
     </div>
 
     <!-- Quick Stats (Matches Gambar IV.42 layout) -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-6">
         <!-- Total Komitmen Janji Iman -->
         <div class="bg-white rounded-xl p-6 border border-slate-100 shadow-sm">
             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider text-center">Total Janji Iman</p>
@@ -29,16 +29,24 @@
 
         <!-- Terbayar / Terkumpul (Dikurangi Pengeluaran) -->
         <div class="bg-white rounded-xl p-6 border border-slate-100 shadow-sm bg-emerald-50/20 border-emerald-100/30">
-            <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider text-center">Saldo Dana Pembangunan</p>
+            <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider text-center">Saldo Pembangunan</p>
             <h3 class="text-base font-bold text-emerald-700 text-center mt-2.5">
                 Rp. {{ number_format($saldoPembangunan, 0, ',', '.') }}
             </h3>
         </div>
 
-        <!-- Sisa Piutang Janji Iman -->
+        <!-- Total Pengeluaran Pembangunan -->
         <div class="bg-white rounded-xl p-6 border border-slate-100 shadow-sm bg-rose-50/20 border-rose-100/30">
-            <p class="text-[10px] font-bold text-rose-600 uppercase tracking-wider text-center">Sisa Piutang Janji</p>
+            <p class="text-[10px] font-bold text-rose-600 uppercase tracking-wider text-center">Total Pengeluaran</p>
             <h3 class="text-base font-bold text-rose-700 text-center mt-2.5">
+                Rp. {{ number_format($pengeluaranPembangunan, 0, ',', '.') }}
+            </h3>
+        </div>
+
+        <!-- Sisa Piutang Janji Iman -->
+        <div class="bg-white rounded-xl p-6 border border-slate-100 shadow-sm bg-amber-50/20 border-amber-100/30">
+            <p class="text-[10px] font-bold text-amber-600 uppercase tracking-wider text-center">Sisa Piutang Janji</p>
+            <h3 class="text-base font-bold text-amber-700 text-center mt-2.5">
                 Rp. {{ number_format($sisaJanjiIman, 0, ',', '.') }}
             </h3>
         </div>
