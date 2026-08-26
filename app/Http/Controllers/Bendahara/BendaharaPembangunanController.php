@@ -178,7 +178,7 @@ class BendaharaPembangunanController extends Controller
                 'id_user' => Auth::id(),
                 'id_jemaat' => $janji->id_jemaat,
                 'bukti_transaksi' => $buktiPath,
-                'status' => 'pending',
+                'status' => 'disetujui', // Pemasukan sah otomatis
             ]);
 
             // 3. Create the PembayaranJanji record
@@ -220,11 +220,6 @@ class BendaharaPembangunanController extends Controller
         $janji = JanjiIman::findOrFail($bayar->id_janji);
         $transaksi = TransaksiKas::findOrFail($bayar->id_transaksi);
 
-        // Prevent modification if already approved by Pendeta
-        if ($transaksi->status === 'disetujui') {
-            return redirect()->back()->withErrors(['error' => 'Pembayaran yang transaksinya sudah disetujui Pendeta tidak dapat diubah.']);
-        }
-
         DB::beginTransaction();
         try {
             $buktiPath = $bayar->bukti_bayar;
@@ -244,7 +239,7 @@ class BendaharaPembangunanController extends Controller
                 'tanggal' => $request->tanggal_bayar,
                 'debit' => $request->jumlah_bayar,
                 'bukti_transaksi' => $buktiPath,
-                'status' => 'pending',
+                'status' => 'disetujui',
                 'alasan_penolakan' => null,
             ]);
 
@@ -277,10 +272,6 @@ class BendaharaPembangunanController extends Controller
         $bayar = PembayaranJanji::findOrFail($id);
         $janji = JanjiIman::findOrFail($bayar->id_janji);
         $transaksi = TransaksiKas::findOrFail($bayar->id_transaksi);
-
-        if ($transaksi->status === 'disetujui') {
-            return redirect()->back()->withErrors(['error' => 'Pembayaran yang transaksinya sudah disetujui Pendeta tidak dapat dihapus.']);
-        }
 
         DB::beginTransaction();
         try {

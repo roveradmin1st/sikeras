@@ -128,6 +128,53 @@
             </div>
         </div>
 
+            <!-- Transparansi Pengeluaran Pembangunan -->
+            <div class="mt-8 space-y-4">
+                <h2 class="text-sm font-bold text-slate-700 uppercase tracking-wider flex items-center">
+                    <i data-lucide="eye" class="w-4 h-4 mr-2 text-rose-500"></i> Transparansi Pengeluaran Dana Pembangunan
+                </h2>
+
+                <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="p-5 border-b border-slate-100 bg-rose-50/50">
+                        <p class="text-xs text-rose-600 leading-relaxed font-medium">
+                            Sebagai bentuk transparansi, berikut adalah rincian pengeluaran dari Kas Pembangunan gereja (semen, tukang, dll).
+                        </p>
+                    </div>
+                    
+                    <div class="divide-y divide-slate-100 max-h-[400px] overflow-y-auto">
+                        @forelse($pengeluaranPembangunan as $pengeluaran)
+                        <div class="p-5 hover:bg-slate-50 transition-colors flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-10 h-10 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center shrink-0">
+                                    <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-slate-800">{{ $pengeluaran->keterangan ?? 'Pengeluaran Pembangunan' }}</p>
+                                    <p class="text-xs text-slate-400 mt-0.5 flex items-center">
+                                        <i data-lucide="calendar" class="w-3 h-3 mr-1"></i> {{ date('d M Y', strtotime($pengeluaran->tanggal)) }}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="text-right flex flex-col items-end">
+                                <span class="text-sm font-black text-rose-600">- Rp {{ number_format($pengeluaran->kredit, 0, ',', '.') }}</span>
+                                @if($pengeluaran->bukti_transaksi)
+                                <a href="{{ asset($pengeluaran->bukti_transaksi) }}" target="_blank" class="text-[10px] text-primary-500 font-semibold hover:underline mt-1 flex items-center">
+                                    <i data-lucide="image" class="w-3 h-3 mr-1"></i> Bukti Nota
+                                </a>
+                                @endif
+                            </div>
+                        </div>
+                        @empty
+                        <div class="p-10 text-center">
+                            <i data-lucide="layout-dashboard" class="w-8 h-8 text-slate-300 mx-auto mb-3"></i>
+                            <p class="text-sm font-medium text-slate-500">Belum ada catatan pengeluaran pembangunan.</p>
+                        </div>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 @endsection

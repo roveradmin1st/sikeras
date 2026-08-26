@@ -72,6 +72,13 @@ class PortalJemaatController extends Controller
             ->orderBy('tanggal', 'desc')
             ->get();
 
-        return view('jemaat.janji_imanku', compact('janjiImanList', 'donasiPembangunan'));
+        // Rincian Pengeluaran Dana Pembangunan (Transparansi)
+        $pengeluaranPembangunan = TransaksiKas::where('jenis_kas', 'pembangunan')
+            ->where('kredit', '>', 0)
+            ->where('status', 'disetujui')
+            ->orderBy('tanggal', 'desc')
+            ->get();
+
+        return view('jemaat.janji_imanku', compact('janjiImanList', 'donasiPembangunan', 'pengeluaranPembangunan'));
     }
 }

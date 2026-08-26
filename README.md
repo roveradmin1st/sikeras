@@ -1,66 +1,77 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Panduan Instalasi SIKERAS (Sistem Informasi Keuangan Gereja)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Panduan ini ditujukan bagi Anda (klien) yang baru saja melakukan `git clone` dari repositori proyek ini agar aplikasi dapat berjalan dengan normal di komputer Anda (Localhost).
 
-## About Laravel
+Kegagalan saat pertama kali menjalankan proyek Laravel hasil *clone* biasanya terjadi karena file kredensial database (`.env`) dan pustaka pihak ketiga (`vendor/`) tidak ikut terunggah ke GitHub demi alasan keamanan. Ikuti langkah-langkah di bawah ini untuk menyelesaikannya:
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Persyaratan Sistem (Prerequisites)
+Pastikan komputer Anda sudah terinstal:
+- **XAMPP** (atau Laragon) dengan **PHP minimal versi 8.1** (sangat disarankan PHP 8.2).
+- **Composer** (Package Manager untuk PHP).
+- **MySQL** (Sudah berjalan melalui Control Panel XAMPP).
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Langkah-langkah Instalasi
 
-## Learning Laravel
+### 1. Masuk ke Folder Proyek
+Buka terminal/Command Prompt (CMD) Anda dan masuk ke direktori tempat Anda melakukan clone.
+```bash
+cd sikeras
+```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 2. Instal Pustaka (Dependencies)
+Jalankan perintah berikut untuk mengunduh semua pustaka (*packages*) yang dibutuhkan oleh aplikasi (seperti pustaka PDF dan Excel).
+```bash
+composer install
+```
+*(Proses ini membutuhkan koneksi internet dan akan memakan waktu beberapa menit).*
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### 3. Buat File Konfigurasi Lingkungan (.env)
+File konfigurasi tidak ikut di-*clone*. Anda harus membuatnya dari file *template* yang tersedia.
+Di terminal (jika Anda memakai Git Bash/Linux/Mac):
+```bash
+cp .env.example .env
+```
+*(Atau Anda bisa me-rename secara manual file `.env.example` menjadi `.env` melalui File Explorer).*
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 4. Hasilkan Kunci Aplikasi (App Key)
+Aplikasi Laravel membutuhkan kunci enkripsi unik untuk keamanan. Jalankan:
+```bash
+php artisan key:generate
+```
 
-## Laravel Sponsors
+### 5. Atur Konfigurasi Database
+Buka file `.env` yang baru saja Anda buat menggunakan *text editor* (Notepad/VS Code). Cari bagian konfigurasi database dan ubah nama databasenya sesuai keinginan Anda (misalnya `db_keuangan_gereja`).
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=db_keuangan_gereja
+DB_USERNAME=root
+DB_PASSWORD=
+```
+*(Biarkan `DB_PASSWORD` kosong jika Anda menggunakan pengaturan bawaan XAMPP).*
 
-### Premium Partners
+### 6. Buat Database Kosong di phpMyAdmin
+1. Buka browser dan ketik `http://localhost/phpmyadmin`
+2. Buat satu database baru dengan nama yang sama persis dengan yang Anda tulis di `.env` (misal: `db_keuangan_gereja`).
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+### 7. Jalankan Migrasi Data
+Untuk membuat tabel-tabel di dalam database secara otomatis, jalankan perintah ini di terminal:
+```bash
+php artisan migrate
+```
+*Opsional: Jika kami telah menyiapkan data dummy awalan (seeding), Anda bisa menjalankannya dengan perintah `php artisan migrate --seed`.*
 
-## Contributing
+### 8. Jalankan Server Aplikasi
+Langkah terakhir, nyalakan server lokal Laravel dengan perintah:
+```bash
+php artisan serve
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Aplikasi SIKERAS sekarang sudah bisa diakses melalui browser Anda di alamat:
+**[http://localhost:8000/mahanaim/login](http://localhost:8000/mahanaim/login)**
 
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+*(Catatan: `/mahanaim` adalah nama tenant/gereja utama di sistem ini).*

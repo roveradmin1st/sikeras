@@ -24,59 +24,67 @@ class BendaharaKasController extends Controller
         $id_kategori = $kategori ? $kategori->id_kategori : null;
 
         $items = TransaksiKas::where('id_kategori', $id_kategori)
-            ->orderBy('tanggal', 'asc')
+            ->with('jemaat.rayon')
+            ->orderBy('tanggal', 'desc')
             ->get();
 
-        return view('bendahara.kas_persembahan', compact('items', 'id_kategori'));
+        $jemaatList = Jemaat::where('status', 'aktif')->orderBy('nama_jemaat', 'asc')->get();
+
+        return view('bendahara.kas_persembahan', compact('items', 'id_kategori', 'jemaatList'));
     }
 
     public function persembahanStore(Request $request)
     {
         $request->validate([
             'tanggal' => 'required|date',
-            'debit' => 'required|numeric|min:0',
-            'keterangan' => 'nullable|string',
-            'bukti_transaksi' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'id_kategori' => 'required|integer',
+            'bukti_transaksi' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'persembahan' => 'required|array',
+            'persembahan.*.id_jemaat' => 'nullable|integer',
+            'persembahan.*.keterangan' => 'nullable|string',
+            'persembahan.*.nominal' => 'required|numeric|min:1',
         ]);
 
-        $data = $request->only(['tanggal', 'debit', 'keterangan', 'id_kategori']);
-        $data['kredit'] = 0;
-        $data['jenis_kas'] = 'kas_umum';
-        $data['id_user'] = Auth::id();
-        $data['status'] = 'pending'; // Default status is pending (approval by Pendeta)
-
+        $buktiPath = null;
         if ($request->hasFile('bukti_transaksi')) {
             $file = $request->file('bukti_transaksi');
             $filename = time() . '_persembahan_' . $file->getClientOriginalName();
             $file->move(public_path('uploads/bukti'), $filename);
-            $data['bukti_transaksi'] = 'uploads/bukti/' . $filename;
+            $buktiPath = 'uploads/bukti/' . $filename;
         }
 
-        TransaksiKas::create($data);
+        foreach ($request->persembahan as $item) {
+            TransaksiKas::create([
+                'tanggal' => $request->tanggal,
+                'keterangan' => $item['keterangan'] ?? 'Persembahan Ibadah',
+                'debit' => $item['nominal'],
+                'kredit' => 0,
+                'jenis_kas' => 'kas_umum',
+                'id_kategori' => $request->id_kategori,
+                'id_user' => Auth::id(),
+                'id_jemaat' => $item['id_jemaat'] ?? null,
+                'bukti_transaksi' => $buktiPath,
+                'status' => 'disetujui', // Pemasukan sah otomatis
+            ]);
+        }
 
-        return redirect()->back()->with('success', 'Data persembahan mingguan berhasil dicatat. Menunggu persetujuan Pendeta.');
+        return redirect()->back()->with('success', 'Data persembahan mingguan berhasil dicatat secara jamak dan telah sah dimasukkan ke saldo.');
     }
 
     public function persembahanUpdate(Request $request, $church_slug, $id)
     {
         $request->validate([
             'tanggal' => 'required|date',
-            'debit' => 'required|numeric|min:0',
+            'debit' => 'required|numeric|min:1',
+            'id_jemaat' => 'nullable|integer',
             'keterangan' => 'nullable|string',
             'bukti_transaksi' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         $item = TransaksiKas::findOrFail($id);
         
-        // Prevent editing if already approved (standard auditing)
-        if ($item->status === 'disetujui') {
-            return redirect()->back()->withErrors(['error' => 'Transaksi yang sudah disetujui Pendeta tidak dapat diubah.']);
-        }
-
-        $data = $request->only(['tanggal', 'debit', 'keterangan']);
-        $data['status'] = 'pending';
-        $data['alasan_penolakan'] = null;
+        $data = $request->only(['tanggal', 'debit', 'id_jemaat', 'keterangan']);
+        $data['status'] = 'disetujui';
 
         if ($request->hasFile('bukti_transaksi')) {
             // Delete old file
@@ -98,10 +106,6 @@ class BendaharaKasController extends Controller
     public function persembahanDestroy($church_slug, $id)
     {
         $item = TransaksiKas::findOrFail($id);
-
-        if ($item->status === 'disetujui') {
-            return redirect()->back()->withErrors(['error' => 'Transaksi yang sudah disetujui Pendeta tidak dapat dihapus.']);
-        }
 
         if ($item->bukti_transaksi && File::exists(public_path($item->bukti_transaksi))) {
             File::delete(public_path($item->bukti_transaksi));
@@ -145,7 +149,7 @@ class BendaharaKasController extends Controller
         $data['kredit'] = 0;
         $data['jenis_kas'] = 'kas_umum';
         $data['id_user'] = Auth::id();
-        $data['status'] = 'pending';
+        $data['status'] = 'disetujui'; // Pemasukan sah otomatis
 
         if ($request->hasFile('bukti_transaksi')) {
             $file = $request->file('bukti_transaksi');
@@ -156,7 +160,7 @@ class BendaharaKasController extends Controller
 
         TransaksiKas::create($data);
 
-        return redirect()->back()->with('success', 'Data donasi jemaat berhasil dicatat. Menunggu persetujuan Pendeta.');
+        return redirect()->back()->with('success', 'Data donasi berhasil dicatat dan langsung Sah/Disetujui.');
     }
 
     public function donasiUpdate(Request $request, $church_slug, $id)
@@ -171,13 +175,8 @@ class BendaharaKasController extends Controller
 
         $item = TransaksiKas::findOrFail($id);
 
-        if ($item->status === 'disetujui') {
-            return redirect()->back()->withErrors(['error' => 'Transaksi yang sudah disetujui Pendeta tidak dapat diubah.']);
-        }
-
         $data = $request->only(['tanggal', 'debit', 'id_jemaat', 'keterangan']);
-        $data['status'] = 'pending';
-        $data['alasan_penolakan'] = null;
+        $data['status'] = 'disetujui';
 
         if ($request->hasFile('bukti_transaksi')) {
             if ($item->bukti_transaksi && File::exists(public_path($item->bukti_transaksi))) {
@@ -198,10 +197,6 @@ class BendaharaKasController extends Controller
     public function donasiDestroy($church_slug, $id)
     {
         $item = TransaksiKas::findOrFail($id);
-
-        if ($item->status === 'disetujui') {
-            return redirect()->back()->withErrors(['error' => 'Transaksi yang sudah disetujui Pendeta tidak dapat dihapus.']);
-        }
 
         if ($item->bukti_transaksi && File::exists(public_path($item->bukti_transaksi))) {
             File::delete(public_path($item->bukti_transaksi));
@@ -263,13 +258,14 @@ class BendaharaKasController extends Controller
         if ($request->tipe === 'masuk') {
             $data['debit'] = $request->jumlah;
             $data['kredit'] = 0;
+            $data['status'] = 'disetujui'; // Pemasukan sah otomatis
         } else {
             $data['debit'] = 0;
             $data['kredit'] = $request->jumlah;
+            $data['status'] = 'pending'; // Pengeluaran butuh persetujuan
         }
 
         $data['id_user'] = Auth::id();
-        $data['status'] = 'pending';
 
         if ($request->hasFile('bukti_transaksi')) {
             $file = $request->file('bukti_transaksi');
@@ -280,7 +276,11 @@ class BendaharaKasController extends Controller
 
         TransaksiKas::create($data);
 
-        return redirect()->back()->with('success', 'Catatan transaksi kas berhasil disimpan. Menunggu persetujuan Pendeta.');
+        $msg = $request->tipe === 'masuk' 
+            ? 'Catatan transaksi kas (Pemasukan) berhasil disimpan dan langsung Sah/Disetujui.'
+            : 'Catatan transaksi kas (Pengeluaran) berhasil disimpan. Menunggu persetujuan Pendeta.';
+
+        return redirect()->back()->with('success', $msg);
     }
 
     public function transaksiUpdate(Request $request, $church_slug, $id)
@@ -298,20 +298,20 @@ class BendaharaKasController extends Controller
 
         $item = TransaksiKas::findOrFail($id);
 
-        if ($item->status === 'disetujui') {
-            return redirect()->back()->withErrors(['error' => 'Transaksi yang sudah disetujui Pendeta tidak dapat diubah.']);
+        if ($item->kredit > 0 && $item->status === 'disetujui') {
+            return redirect()->back()->withErrors(['error' => 'Transaksi pengeluaran yang sudah disetujui Pendeta tidak dapat diubah.']);
         }
 
         $data = $request->only(['tanggal', 'id_kategori', 'jenis_kas', 'id_jemaat', 'keterangan']);
-        $data['status'] = 'pending';
         $data['alasan_penolakan'] = null;
-
         if ($request->tipe === 'masuk') {
             $data['debit'] = $request->jumlah;
             $data['kredit'] = 0;
+            $data['status'] = 'disetujui'; // Pemasukan sah otomatis
         } else {
             $data['debit'] = 0;
             $data['kredit'] = $request->jumlah;
+            $data['status'] = 'pending'; // Pengeluaran butuh persetujuan
         }
 
         if ($request->hasFile('bukti_transaksi')) {
@@ -334,8 +334,8 @@ class BendaharaKasController extends Controller
     {
         $item = TransaksiKas::findOrFail($id);
 
-        if ($item->status === 'disetujui') {
-            return redirect()->back()->withErrors(['error' => 'Transaksi yang sudah disetujui Pendeta tidak dapat dihapus.']);
+        if ($item->kredit > 0 && $item->status === 'disetujui') {
+            return redirect()->back()->withErrors(['error' => 'Transaksi pengeluaran yang sudah disetujui Pendeta tidak dapat dihapus.']);
         }
 
         if ($item->bukti_transaksi && File::exists(public_path($item->bukti_transaksi))) {

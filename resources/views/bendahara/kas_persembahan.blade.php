@@ -3,7 +3,7 @@
 @section('title', 'Persembahan Mingguan - SIKER')
 
 @section('content')
-<div class="space-y-6" x-data="{ openAddModal: false, editItem: null }">
+<div class="space-y-6" x-data="{ openAddModal: false, editItem: null, entries: [{id_jemaat: '', nominal: '', keterangan: ''}], get total() { return this.entries.reduce((a, b) => a + (Number(b.nominal) || 0), 0) }, addRow() { this.entries.push({id_jemaat: '', nominal: '', keterangan: ''}) }, removeRow(index) { this.entries.splice(index, 1) } }">
     
     <!-- Top Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
@@ -59,10 +59,11 @@
                     <tr class="bg-slate-50 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                         <th class="px-6 py-4">No</th>
                         <th class="px-6 py-4">Tanggal Ibadah</th>
+                        <th class="px-6 py-4">Nama Jemaat / Sumber</th>
                         <th class="px-6 py-4">Keterangan / Minggu Ke-</th>
                         <th class="px-6 py-4">Nominal</th>
                         <th class="px-6 py-4">Bukti Transaksi</th>
-                        <th class="px-6 py-4">Status Approval</th>
+                        <th class="px-6 py-4">Status Validasi</th>
                         <th class="px-6 py-4 text-right">Aksi</th>
                     </tr>
                 </thead>
@@ -71,6 +72,12 @@
                     <tr class="hover:bg-slate-50/20 transition-colors">
                         <td class="px-6 py-4 font-medium text-slate-400">{{ $index + 1 }}</td>
                         <td class="px-6 py-4 font-semibold text-slate-800">{{ date('d - M - Y', strtotime($item->tanggal)) }}</td>
+                        <td class="px-6 py-4 font-semibold text-slate-800">
+                            {{ $item->jemaat ? $item->jemaat->nama_jemaat : 'Kolekte Umum (Anonim)' }}
+                            @if($item->jemaat && $item->jemaat->rayon)
+                            <div class="text-[10px] text-slate-400 font-normal mt-0.5"><i data-lucide="map-pin" class="w-3 h-3 inline-block mr-0.5"></i>{{ $item->jemaat->rayon->nama_rayon }}</div>
+                            @endif
+                        </td>
                         <td class="px-6 py-4">{{ $item->keterangan ?? '-' }}</td>
                         <td class="px-6 py-4 font-bold text-slate-900">Rp. {{ number_format($item->debit, 0, ',', '.') }}</td>
                         <td class="px-6 py-4">
@@ -86,19 +93,12 @@
                         <td class="px-6 py-4">
                             @if($item->status === 'disetujui')
                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-100">
-                                Disetujui
+                                Sah (Valid)
                             </span>
                             @elseif($item->status === 'ditolak')
-                            <div class="flex flex-col gap-1">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-rose-50 text-rose-700 border border-rose-100 w-fit">
-                                    Ditolak
-                                </span>
-                                @if($item->alasan_penolakan)
-                                <span class="text-[10px] text-rose-500 font-semibold max-w-[120px] truncate" title="{{ $item->alasan_penolakan }}">
-                                    Alasan: {{ $item->alasan_penolakan }}
-                                </span>
-                                @endif
-                            </div>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-rose-50 text-rose-700 border border-rose-100">
+                                Ditolak
+                            </span>
                             @else
                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-50 text-amber-700 border border-amber-100">
                                 Pending
@@ -106,7 +106,6 @@
                             @endif
                         </td>
                         <td class="px-6 py-4 text-right whitespace-nowrap">
-                            @if($item->status !== 'disetujui')
                             <button @click="editItem = {{ json_encode($item) }}" class="p-1 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-primary-600 transition-all inline-block mr-1">
                                 <i data-lucide="edit" class="w-4 h-4"></i>
                             </button>
@@ -117,9 +116,6 @@
                                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                                 </button>
                             </form>
-                            @else
-                            <span class="text-[10px] font-semibold text-slate-400 bg-slate-50 px-2 py-1 rounded">Locked</span>
-                            @endif
                         </td>
                     </tr>
                     @empty
@@ -132,41 +128,73 @@
         </div>
     </div>
 
-    <!-- ADD MODAL (Matches Gambar IV.33) -->
+    <!-- ADD MODAL (Smart Multi-entry Auto Calc) -->
     <div x-show="openAddModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
-        <div @click.away="openAddModal = false" class="bg-white rounded-2xl shadow-xl border border-slate-100 max-w-md w-full overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                <h3 class="text-sm font-bold text-slate-800">Tambah Persembahan Mingguan</h3>
-                <button @click="openAddModal = false" class="text-slate-400 hover:text-slate-600">
+        <div @click.away="openAddModal = false" class="bg-white rounded-2xl shadow-xl border border-slate-100 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 sticky top-0 z-10">
+                <h3 class="text-sm font-bold text-slate-800">Pencatatan Persembahan Mingguan (Auto-Calc)</h3>
+                <button type="button" @click="openAddModal = false" class="text-slate-400 hover:text-slate-600">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
-            <form method="POST" action="{{ route('kas.persembahan.store', ['church_slug' => request()->route('church_slug')]) }}" enctype="multipart/form-data" class="p-6 space-y-4">
+            <form method="POST" action="{{ route('kas.persembahan.store', ['church_slug' => request()->route('church_slug')]) }}" enctype="multipart/form-data" class="p-6 space-y-5">
                 @csrf
                 <input type="hidden" name="id_kategori" value="{{ $id_kategori }}">
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1.5">Tanggal Ibadah</label>
-                    <input type="date" name="tanggal" required value="{{ date('Y-m-d') }}"
-                           class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1.5">Tanggal Ibadah</label>
+                        <input type="date" name="tanggal" required value="{{ date('Y-m-d') }}"
+                               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1.5">Bukti Fisik Transaksi (Foto/Lampiran)</label>
+                        <input type="file" name="bukti_transaksi" accept="image/*"
+                               class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100">
+                    </div>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1.5">Nominal Persembahan (Rp)</label>
-                    <input type="number" name="debit" min="0" required placeholder="Contoh: 500000"
-                           class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1.5">Keterangan / Keterangan Minggu Ke-</label>
-                    <input type="text" name="keterangan" placeholder="Contoh: Persembahan Ibadah Raya Minggu II"
-                           class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1.5">Bukti Fisik Transaksi (Foto/Lampiran)</label>
-                    <input type="file" name="bukti_transaksi" accept="image/*"
-                           class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100">
+                <div class="border border-slate-200 rounded-xl overflow-hidden">
+                    <div class="bg-slate-50 px-4 py-2 border-b border-slate-200 flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-700">Rincian Persembahan / Jemaat</span>
+                        <button type="button" @click="addRow()" class="text-[10px] bg-white border border-slate-200 px-2 py-1 rounded-md hover:bg-slate-100 font-semibold text-slate-600 shadow-sm flex items-center">
+                            <i data-lucide="plus" class="w-3 h-3 mr-1"></i> Tambah Baris
+                        </button>
+                    </div>
+                    <div class="p-4 bg-slate-50/30 space-y-3">
+                        <template x-for="(entry, index) in entries" :key="index">
+                            <div class="flex flex-col md:flex-row gap-3 items-end bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
+                                <div class="w-full md:w-1/3">
+                                    <label class="block text-[10px] font-semibold text-slate-500 mb-1">Nama Jemaat</label>
+                                    <select :name="'persembahan['+index+'][id_jemaat]'" x-model="entry.id_jemaat" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:border-primary-500 transition-all text-xs">
+                                        <option value="">-- Kolekte Umum / Anonim --</option>
+                                        @foreach($jemaatList as $j)
+                                            <option value="{{ $j->id_jemaat }}">{{ $j->nama_jemaat }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="w-full md:w-1/3">
+                                    <label class="block text-[10px] font-semibold text-slate-500 mb-1">Keterangan / Minggu Ke-</label>
+                                    <input type="text" :name="'persembahan['+index+'][keterangan]'" x-model="entry.keterangan" placeholder="Contoh: Perpuluhan / Ibadah Raya"
+                                           class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:border-primary-500 transition-all text-xs">
+                                </div>
+                                <div class="w-full md:w-1/3">
+                                    <label class="block text-[10px] font-semibold text-slate-500 mb-1">Nominal (Rp)</label>
+                                    <div class="flex items-center gap-2">
+                                        <input type="number" :name="'persembahan['+index+'][nominal]'" x-model="entry.nominal" min="1" required placeholder="0"
+                                            class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:border-primary-500 transition-all text-xs">
+                                        <button type="button" @click="removeRow(index)" x-show="entries.length > 1" class="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors">
+                                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="bg-emerald-50 px-4 py-3 border-t border-emerald-100 flex justify-between items-center">
+                        <span class="text-xs font-bold text-emerald-800">Total Persembahan:</span>
+                        <span class="text-lg font-black text-emerald-700">Rp. <span x-text="new Intl.NumberFormat('id-ID').format(total)"></span></span>
+                    </div>
                 </div>
 
                 <div class="pt-2 flex justify-end space-x-2">
@@ -174,7 +202,7 @@
                         Batal
                     </button>
                     <button type="submit" class="px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded-xl transition-colors shadow-md shadow-primary-500/25">
-                        Simpan Data
+                        Simpan Data Persembahan
                     </button>
                 </div>
             </form>
@@ -193,6 +221,16 @@
             <form method="POST" :action="`{{ url(request()->route('church_slug') . '/kas/persembahan') }}/${editItem ? editItem.id_transaksi : ''}`" enctype="multipart/form-data" class="p-6 space-y-4">
                 @csrf
                 @method('PUT')
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1.5">Nama Jemaat / Sumber</label>
+                    <select name="id_jemaat" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs">
+                        <option value="" :selected="editItem && !editItem.id_jemaat">-- Kolekte Umum / Anonim --</option>
+                        @foreach($jemaatList as $j)
+                            <option value="{{ $j->id_jemaat }}" :selected="editItem && editItem.id_jemaat == {{ $j->id_jemaat }}">{{ $j->nama_jemaat }}</option>
+                        @endforeach
+                    </select>
+                </div>
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1.5">Tanggal Ibadah</label>

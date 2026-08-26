@@ -34,9 +34,11 @@
 <body>
 
     <div class="header">
-        @if($church->path_logo)
+        @if(isset($church) && $church->path_logo)
             <!-- DomPDF can read from public_path() -->
             <img src="{{ public_path('storage/' . $church->path_logo) }}" class="logo">
+        @else
+            <img src="{{ public_path('images/logo-gpdi.png') }}" class="logo">
         @endif
         <div style="padding-left: 80px;">
             <h1>GEREJA PANTEKOSTA di INDONESIA</h1>
@@ -109,10 +111,23 @@
     <div class="clear"></div>
 
     <div class="signature">
-        <div class="signature-box">
-            <p>Mengetahui,<br>Pendeta / Gembala Sidang</p>
-            <p>_______________________</p>
+        <div class="signature-box" style="float: left;">
+            <p>Dibuat Oleh,<br><strong>Bendahara Kas</strong></p>
+            @php
+                $bendahara = \App\Models\User::where('role', 'bendahara_kas')->first();
+                $namaBendahara = $bendahara ? $bendahara->nama : '_________________';
+            @endphp
+            <div style="margin-top: 60px; text-align: center; font-weight: bold;">{{ $namaBendahara }}</div>
         </div>
+        <div class="signature-box" style="float: right;">
+            <p>Mengetahui,<br><strong>Pendeta / Gembala Sidang</strong></p>
+            @php
+                $pendeta = \App\Models\User::where('role', 'pendeta')->first();
+                $namaPendeta = $pendeta ? $pendeta->nama : '_________________';
+            @endphp
+            <div style="margin-top: 60px; text-align: center; font-weight: bold;">{{ $namaPendeta }}</div>
+        </div>
+        <div class="clear"></div>
     </div>
 
 </body>

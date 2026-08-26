@@ -16,6 +16,7 @@ class PendetaController extends Controller
         // Fetch pending transactions specifically for general cash and rayon
         $pendingItems = TransaksiKas::with(['user', 'jemaat', 'kategori'])
             ->whereIn('jenis_kas', ['kas_umum', 'rayon'])
+            ->where('kredit', '>', 0)
             ->where('status', 'pending')
             ->orderBy('tanggal', 'asc')
             ->get();
@@ -23,6 +24,7 @@ class PendetaController extends Controller
         // Fetch rejected transactions
         $rejectedItems = TransaksiKas::with(['user', 'jemaat', 'kategori'])
             ->whereIn('jenis_kas', ['kas_umum', 'rayon'])
+            ->where('kredit', '>', 0)
             ->where('status', 'ditolak')
             ->orderBy('tanggal', 'asc')
             ->get();
@@ -62,6 +64,7 @@ class PendetaController extends Controller
         // Fetch pending building cash transactions
         $pendingItems = TransaksiKas::with(['user', 'jemaat', 'kategori'])
             ->where('jenis_kas', 'pembangunan')
+            ->where('kredit', '>', 0)
             ->where('status', 'pending')
             ->orderBy('tanggal', 'asc')
             ->get();
@@ -69,6 +72,7 @@ class PendetaController extends Controller
         // Fetch rejected building cash transactions
         $rejectedItems = TransaksiKas::with(['user', 'jemaat', 'kategori'])
             ->where('jenis_kas', 'pembangunan')
+            ->where('kredit', '>', 0)
             ->where('status', 'ditolak')
             ->orderBy('tanggal', 'asc')
             ->get();
@@ -81,7 +85,7 @@ class PendetaController extends Controller
         $transaksi = TransaksiKas::findOrFail($id);
         $transaksi->update(['status' => 'disetujui']);
 
-        return redirect()->back()->with('success', 'Setoran Janji Iman berhasil disetujui.');
+        return redirect()->back()->with('success', 'Pengeluaran Kas Pembangunan berhasil disetujui.');
     }
 
     public function rejectJanji(Request $request, $church_slug, $id)

@@ -146,7 +146,6 @@
                             @endif
                         </td>
                         <td class="px-6 py-4 text-right whitespace-nowrap">
-                            @if(!$item->transaksi || $item->transaksi->status !== 'disetujui')
                             <button @click="editItem = {{ json_encode($item) }}" class="p-1 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-primary-600 transition-all inline-block mr-1">
                                 <i data-lucide="edit" class="w-4 h-4"></i>
                             </button>
@@ -157,9 +156,6 @@
                                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                                 </button>
                             </form>
-                            @else
-                            <span class="text-[10px] font-semibold text-slate-400 bg-slate-50 px-2 py-1 rounded">Locked</span>
-                            @endif
                         </td>
                     </tr>
                     @empty
