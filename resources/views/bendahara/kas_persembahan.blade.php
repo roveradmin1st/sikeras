@@ -3,7 +3,23 @@
 @section('title', 'Persembahan Mingguan - SIKER')
 
 @section('content')
-<div class="space-y-6" x-data="{ openAddModal: false, editItem: null, entries: [{id_jemaat: '', nominal: '', keterangan: ''}], get total() { return this.entries.reduce((a, b) => a + (Number(b.nominal) || 0), 0) }, addRow() { this.entries.push({id_jemaat: '', nominal: '', keterangan: ''}) }, removeRow(index) { this.entries.splice(index, 1) } }">
+<div class="space-y-6" x-data="{
+            openAddModal: false,
+            editItem: null,
+            receiptItem: null,
+            entries: [{ id_jemaat: '', nominal: '', keterangan: '' }],
+            get total() {
+                return this.entries.reduce((a, b) => a + (Number(b.nominal) || 0), 0)
+            },
+            addRow() {
+                this.entries.push({id_jemaat: '', nominal: '', keterangan: ''})
+            },
+            removeRow(index) {
+                if(this.entries.length > 1) {
+                    this.entries.splice(index, 1)
+                }
+            }
+        }">
     
     <!-- Top Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
@@ -81,14 +97,10 @@
                         <td class="px-6 py-4">{{ $item->keterangan ?? '-' }}</td>
                         <td class="px-6 py-4 font-bold text-slate-900">Rp. {{ number_format($item->debit, 0, ',', '.') }}</td>
                         <td class="px-6 py-4">
-                            @if($item->bukti_transaksi)
-                            <a href="{{ asset($item->bukti_transaksi) }}" target="_blank" class="inline-flex items-center text-primary-600 hover:text-primary-750 font-semibold space-x-1">
-                                <i data-lucide="eye" class="w-3.5 h-3.5"></i>
-                                <span>Lihat Bukti</span>
-                            </a>
-                            @else
-                            <span class="text-slate-400">Tidak ada</span>
-                            @endif
+                            <button @click="receiptItem = {{ json_encode($item) }}; receiptItem.user = {{ json_encode($item->user) }}; receiptItem.jemaat = {{ json_encode($item->jemaat) }}" class="inline-flex items-center text-primary-600 hover:text-primary-750 font-semibold space-x-1 bg-primary-50 hover:bg-primary-100 px-2.5 py-1.5 rounded-lg transition-colors">
+                                <i data-lucide="receipt" class="w-3.5 h-3.5"></i>
+                                <span>Lihat Kuitansi</span>
+                            </button>
                         </td>
                         <td class="px-6 py-4">
                             @if($item->status === 'disetujui')
@@ -141,16 +153,11 @@
                 @csrf
                 <input type="hidden" name="id_kategori" value="{{ $id_kategori }}">
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1.5">Tanggal Ibadah</label>
                         <input type="date" name="tanggal" required value="{{ date('Y-m-d') }}"
                                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1.5">Bukti Fisik Transaksi (Foto/Lampiran)</label>
-                        <input type="file" name="bukti_transaksi" accept="image/*"
-                               class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100">
                     </div>
                 </div>
 
@@ -250,11 +257,6 @@
                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs">
                 </div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1.5">Bukti Fisik Transaksi (Kosongkan jika tidak diubah)</label>
-                    <input type="file" name="bukti_transaksi" accept="image/*"
-                           class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100">
-                </div>
 
                 <div class="pt-2 flex justify-end space-x-2">
                     <button type="button" @click="editItem = null" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition-colors">
@@ -265,6 +267,45 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- RECEIPT MODAL -->
+    <div x-show="receiptItem" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+        <div @click.away="receiptItem = null" class="bg-white rounded-2xl shadow-xl border border-slate-100 max-w-sm w-full overflow-hidden">
+            <!-- Header Kuitansi -->
+            <div class="px-6 py-5 border-b border-slate-100 flex flex-col items-center bg-slate-50/80">
+                <div class="w-12 h-12 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center mb-3">
+                    <i data-lucide="receipt" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800">Bukti Persembahan</h3>
+                <p class="text-xs font-semibold text-slate-500 mt-0.5" x-text="receiptItem ? new Date(receiptItem.tanggal).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'}) : ''"></p>
+            </div>
+            <!-- Body Kuitansi -->
+            <div class="p-6 space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                    <span class="text-xs font-semibold text-slate-500">Rincian / Keterangan</span>
+                    <span class="text-xs font-bold text-slate-800 text-right" x-text="receiptItem ? receiptItem.keterangan : ''"></span>
+                </div>
+                <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                    <span class="text-xs font-semibold text-slate-500">Dikumpulkan Oleh</span>
+                    <span class="text-xs font-bold text-slate-800 text-right" x-text="receiptItem && receiptItem.user ? receiptItem.user.nama : 'Bendahara Kas'"></span>
+                </div>
+                <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                    <span class="text-xs font-semibold text-slate-500">Sumber / Jemaat</span>
+                    <span class="text-xs font-bold text-slate-800 text-right" x-text="receiptItem && receiptItem.jemaat ? receiptItem.jemaat.nama_jemaat : 'Kolekte Umum / Anonim'"></span>
+                </div>
+                <div class="flex justify-between items-center pt-2">
+                    <span class="text-sm font-bold text-slate-800">Jumlah Terkumpul</span>
+                    <span class="text-lg font-black text-emerald-600" x-text="receiptItem ? 'Rp. ' + new Intl.NumberFormat('id-ID').format(receiptItem.debit) : ''"></span>
+                </div>
+            </div>
+            <!-- Footer -->
+            <div class="px-6 py-4 border-t border-slate-100 bg-slate-50/50 flex justify-end">
+                <button type="button" @click="receiptItem = null" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl transition-colors">
+                    Tutup
+                </button>
+            </div>
         </div>
     </div>
 
