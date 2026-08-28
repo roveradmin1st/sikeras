@@ -7,6 +7,7 @@
             openAddModal: false,
             editItem: null,
             receiptItem: null,
+            receiptItem: null,
             entries: [{ id_jemaat: '', nominal: '', keterangan: '' }],
             get total() {
                 return this.entries.reduce((a, b) => a + (Number(b.nominal) || 0), 0)
@@ -294,6 +295,42 @@
                 <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                     <span class="text-xs font-semibold text-slate-500">Sumber / Jemaat</span>
                     <span class="text-xs font-bold text-slate-800 text-right" x-text="receiptItem && receiptItem.jemaat ? receiptItem.jemaat.nama_jemaat : 'Kolekte Umum / Anonim'"></span>
+                </div>
+                <div class="flex justify-between items-center pt-2">
+                    <span class="text-sm font-bold text-slate-800">Jumlah Terkumpul</span>
+                    <span class="text-lg font-black text-emerald-600" x-text="receiptItem ? 'Rp. ' + new Intl.NumberFormat('id-ID').format(receiptItem.debit) : ''"></span>
+                </div>
+            </div>
+            <!-- Footer -->
+            <div class="px-6 py-4 border-t border-slate-100 bg-slate-50/50 flex justify-end">
+                <button type="button" @click="receiptItem = null" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl transition-colors">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- RECEIPT MODAL -->
+    <div x-show="receiptItem" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+        <div @click.away="receiptItem = null" class="bg-white rounded-2xl shadow-xl border border-slate-100 max-w-md w-full overflow-hidden">
+            <!-- Header Kuitansi -->
+            <div class="px-6 py-5 border-b border-slate-100 flex flex-col items-center bg-slate-50/80">
+                <div class="w-12 h-12 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center mb-3">
+                    <i data-lucide="receipt" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800">Bukti Persembahan</h3>
+                <p class="text-xs font-semibold text-slate-500 mt-0.5" x-text="receiptItem ? new Date(receiptItem.tanggal).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'}) : ''"></p>
+            </div>
+            <!-- Body Kuitansi -->
+            <div class="p-6 space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                    <span class="text-xs font-semibold text-slate-500">Rincian</span>
+                    <span class="text-xs font-bold text-slate-800 text-right w-2/3" style="line-height: 1.5;" x-text="receiptItem ? receiptItem.keterangan : ''"></span>
+                </div>
+                <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                    <span class="text-xs font-semibold text-slate-500">Diinput Oleh</span>
+                    <span class="text-xs font-bold text-slate-800 text-right" x-text="receiptItem && receiptItem.user ? receiptItem.user.nama : 'Bendahara'"></span>
                 </div>
                 <div class="flex justify-between items-center pt-2">
                     <span class="text-sm font-bold text-slate-800">Jumlah Terkumpul</span>

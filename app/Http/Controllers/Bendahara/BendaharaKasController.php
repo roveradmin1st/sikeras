@@ -38,37 +38,49 @@ class BendaharaKasController extends Controller
         $request->validate([
             'tanggal' => 'required|date',
             'id_kategori' => 'required|integer',
-            'bukti_transaksi' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'persembahan' => 'required|array',
             'persembahan.*.id_jemaat' => 'nullable|integer',
             'persembahan.*.keterangan' => 'nullable|string',
             'persembahan.*.nominal' => 'required|numeric|min:1',
         ]);
 
-        $buktiPath = null;
-        if ($request->hasFile('bukti_transaksi')) {
-            $file = $request->file('bukti_transaksi');
-            $filename = time() . '_persembahan_' . $file->getClientOriginalName();
-            $file->move(public_path('uploads/bukti'), $filename);
-            $buktiPath = 'uploads/bukti/' . $filename;
-        }
+        $totalNominal = 0;
+        $rincianArr = [];
 
+        // Ambil nama jemaat untuk rincian
         foreach ($request->persembahan as $item) {
-            TransaksiKas::create([
-                'tanggal' => $request->tanggal,
-                'keterangan' => $item['keterangan'] ?? 'Persembahan Ibadah',
-                'debit' => $item['nominal'],
-                'kredit' => 0,
-                'jenis_kas' => 'kas_umum',
-                'id_kategori' => $request->id_kategori,
-                'id_user' => Auth::id(),
-                'id_jemaat' => $item['id_jemaat'] ?? null,
-                'bukti_transaksi' => $buktiPath,
-                'status' => 'disetujui', // Pemasukan sah otomatis
-            ]);
+            $totalNominal += $item['nominal'];
+            
+            $namaJemaat = "Anonim";
+            if (!empty($item['id_jemaat'])) {
+                $jemaat = \App\Models\Jemaat::find($item['id_jemaat']);
+                if ($jemaat) {
+                    $namaJemaat = $jemaat->nama_jemaat;
+                }
+            }
+
+            $ket = $item['keterangan'] ?? 'Persembahan';
+            $rincianArr[] = $namaJemaat . " (" . $ket . ": Rp" . number_format($item['nominal'], 0, ',', '.') . ")";
         }
 
-        return redirect()->back()->with('success', 'Data persembahan mingguan berhasil dicatat secara jamak dan telah sah dimasukkan ke saldo.');
+        $rincianText = implode(', ', $rincianArr);
+        
+        $keteranganGabungan = "Total Persembahan Ibadah. Rincian: " . $rincianText;
+
+        TransaksiKas::create([
+            'tanggal' => $request->tanggal,
+            'keterangan' => $keteranganGabungan,
+            'debit' => $totalNominal,
+            'kredit' => 0,
+            'jenis_kas' => 'kas_umum',
+            'id_kategori' => $request->id_kategori,
+            'id_user' => Auth::id(),
+            'id_jemaat' => null, // Karena digabung, id_jemaat jadi null
+            'bukti_transaksi' => null,
+            'status' => 'disetujui',
+        ]);
+
+        return redirect()->back()->with('success', 'Data persembahan berhasil dijumlahkan dan dicatat sebagai 1 transaksi.');
     }
 
     public function persembahanUpdate(Request $request, $church_slug, $id)
@@ -78,7 +90,6 @@ class BendaharaKasController extends Controller
             'debit' => 'required|numeric|min:1',
             'id_jemaat' => 'nullable|integer',
             'keterangan' => 'nullable|string',
-            'bukti_transaksi' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         $item = TransaksiKas::findOrFail($id);
@@ -86,21 +97,9 @@ class BendaharaKasController extends Controller
         $data = $request->only(['tanggal', 'debit', 'id_jemaat', 'keterangan']);
         $data['status'] = 'disetujui';
 
-        if ($request->hasFile('bukti_transaksi')) {
-            // Delete old file
-            if ($item->bukti_transaksi && File::exists(public_path($item->bukti_transaksi))) {
-                File::delete(public_path($item->bukti_transaksi));
-            }
-
-            $file = $request->file('bukti_transaksi');
-            $filename = time() . '_persembahan_' . $file->getClientOriginalName();
-            $file->move(public_path('uploads/bukti'), $filename);
-            $data['bukti_transaksi'] = 'uploads/bukti/' . $filename;
-        }
-
         $item->update($data);
 
-        return redirect()->back()->with('success', 'Data persembahan mingguan berhasil diperbarui.');
+        return redirect()->back()->with('success', 'Data persembahan berhasil diperbarui.');
     }
 
     public function persembahanDestroy($church_slug, $id)
