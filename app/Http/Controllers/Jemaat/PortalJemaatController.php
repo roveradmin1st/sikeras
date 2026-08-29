@@ -34,7 +34,18 @@ class PortalJemaatController extends Controller
             ->take(50)
             ->get();
 
-        return view('jemaat.dashboard', compact('saldoKas', 'totalPemasukan', 'totalPengeluaran', 'riwayatTransaksi'));
+        // Transparansi Pembayaran Janji Iman (7 hari terakhir)
+        $tujuhHariLalu = \Carbon\Carbon::now()->subDays(7)->toDateString();
+        
+        $pembayaranJanjiBaru = PembayaranJanji::where('tanggal_bayar', '>=', $tujuhHariLalu)
+            ->whereHas('transaksi', function($q) {
+                $q->where('status', 'disetujui');
+            })
+            ->with(['janjiIman.jemaat'])
+            ->orderBy('tanggal_bayar', 'desc')
+            ->get();
+
+        return view('jemaat.dashboard', compact('saldoKas', 'totalPemasukan', 'totalPengeluaran', 'riwayatTransaksi', 'pembayaranJanjiBaru'));
     }
 
     public function janjiImanKu($church_slug)

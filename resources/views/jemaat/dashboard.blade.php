@@ -118,5 +118,54 @@
             </table>
         </div>
     </div>
+
+    <!-- Data Table: Transparansi Janji Iman -->
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden mt-6">
+        <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-indigo-50/50">
+            <div>
+                <h2 class="text-lg font-bold text-indigo-900">Transparansi Pembayaran Janji Iman</h2>
+                <p class="text-xs text-indigo-600/70">Daftar jemaat yang telah membayar janji iman dalam 7 hari terakhir.</p>
+            </div>
+            <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center">
+                <i data-lucide="hand-coins" class="w-5 h-5"></i>
+            </div>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-50/80 border-b border-slate-200 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                        <th class="px-6 py-4">Tanggal Bayar</th>
+                        <th class="px-6 py-4">Nama Jemaat</th>
+                        <th class="px-6 py-4 text-right">Jumlah Dibayar</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-sm text-slate-700">
+                    @forelse($pembayaranJanjiBaru as $bayar)
+                    <tr class="hover:bg-slate-50/80 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap text-slate-500 text-xs font-medium">
+                            <i data-lucide="calendar" class="w-3 h-3 inline-block mr-1 text-slate-400"></i>
+                            {{ date('d M Y', strtotime($bayar->tanggal_bayar)) }}
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="font-bold text-slate-800 block">{{ $bayar->janjiIman->jemaat->nama_jemaat ?? 'Jemaat (Data Terhapus)' }}</span>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <span class="font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg">Rp. {{ number_format($bayar->jumlah_bayar, 0, ',', '.') }}</span>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="3" class="px-6 py-10 text-center text-slate-400">
+                            <i data-lucide="calendar-x" class="w-10 h-10 mx-auto text-slate-200 mb-2"></i>
+                            <p class="font-medium text-slate-500 text-sm">Belum ada pembayaran janji iman</p>
+                            <p class="text-xs mt-1">dalam 7 hari terakhir.</p>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 @endsection
