@@ -15,7 +15,7 @@ class PendetaController extends Controller
     {
         // Fetch pending transactions specifically for general cash and rayon
         $pendingItems = TransaksiKas::with(['user', 'jemaat', 'kategori'])
-            ->whereIn('jenis_kas', ['kas_umum', 'rayon'])
+            ->whereIn('jenis_kas', ['kas_umum', 'rayon', 'pembangunan'])
             ->where('kredit', '>', 0)
             ->where('status', 'pending')
             ->orderBy('tanggal', 'asc')
@@ -23,7 +23,7 @@ class PendetaController extends Controller
 
         // Fetch rejected transactions
         $rejectedItems = TransaksiKas::with(['user', 'jemaat', 'kategori'])
-            ->whereIn('jenis_kas', ['kas_umum', 'rayon'])
+            ->whereIn('jenis_kas', ['kas_umum', 'rayon', 'pembangunan'])
             ->where('kredit', '>', 0)
             ->where('status', 'ditolak')
             ->orderBy('tanggal', 'asc')
@@ -112,7 +112,7 @@ class PendetaController extends Controller
         $endDate = $request->input('end_date', date('Y-m-t'));
 
         // Ambil transaksi kas_umum dan rayon yang disetujui dalam rentang waktu
-        $items = TransaksiKas::whereIn('jenis_kas', ['kas_umum', 'rayon'])
+        $items = TransaksiKas::whereIn('jenis_kas', ['kas_umum', 'rayon', 'pembangunan'])
             ->where('status', 'disetujui')
             ->whereBetween('tanggal', [$startDate, $endDate])
             ->with(['kategori', 'jemaat'])
@@ -153,7 +153,7 @@ class PendetaController extends Controller
         $startDate = $request->input('start_date', date('Y-m-01'));
         $endDate = $request->input('end_date', date('Y-m-t'));
 
-        $items = TransaksiKas::whereIn('jenis_kas', ['kas_umum', 'rayon'])
+        $items = TransaksiKas::whereIn('jenis_kas', ['kas_umum', 'rayon', 'pembangunan'])
             ->where('status', 'disetujui')
             ->whereBetween('tanggal', [$startDate, $endDate])
             ->with(['kategori', 'jemaat'])
@@ -180,7 +180,7 @@ class PendetaController extends Controller
         $startDate = $request->input('start_date', date('Y-m-01'));
         $endDate = $request->input('end_date', date('Y-m-t'));
 
-        $items = TransaksiKas::whereIn('jenis_kas', ['kas_umum', 'rayon'])
+        $items = TransaksiKas::whereIn('jenis_kas', ['kas_umum', 'rayon', 'pembangunan'])
             ->where('status', 'disetujui')
             ->whereBetween('tanggal', [$startDate, $endDate])
             ->with(['kategori', 'jemaat'])

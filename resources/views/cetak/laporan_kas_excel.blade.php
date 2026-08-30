@@ -31,7 +31,7 @@ header("Content-Disposition: attachment; filename=Laporan_Kas_" . $startDate . "
         <tr>
             <td>{{ $index + 1 }}</td>
             <td>{{ date('d/m/Y', strtotime($item->tanggal)) }}</td>
-            <td>{{ $item->kategori ? $item->kategori->nama_kategori : '-' }} ({{ $item->jenis_kas === 'kas_umum' ? 'Umum' : 'Rayon' }})</td>
+            <td>{{ $item->kategori ? $item->kategori->nama_kategori : '-' }} ({{ $item->jenis_kas === 'kas_umum' ? 'Umum' : ($item->jenis_kas === 'rayon' ? 'Rayon' : 'Pembangunan') }})</td>
             <td>{{ $item->keterangan }}</td>
             <td>{{ $item->debit }}</td>
             <td>{{ $item->kredit }}</td>

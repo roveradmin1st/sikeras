@@ -77,7 +77,7 @@
                 <td class="text-center">{{ $index + 1 }}</td>
                 <td class="text-center">{{ date('d/m/Y', strtotime($item->tanggal)) }}</td>
                 <td>{{ $item->kategori ? $item->kategori->nama_kategori : '-' }} 
-                    ({{ $item->jenis_kas === 'kas_umum' ? 'Umum' : 'Rayon' }})
+                    ({{ $item->jenis_kas === 'kas_umum' ? 'Umum' : ($item->jenis_kas === 'rayon' ? 'Rayon' : 'Pembangunan') }})
                 </td>
                 <td>{{ $item->keterangan }}</td>
                 <td class="text-right">{{ $item->debit > 0 ? number_format($item->debit, 0, ',', '.') : '-' }}</td>

@@ -78,8 +78,10 @@
                         <td class="px-6 py-4">
                             @if($item->jenis_kas === 'kas_umum')
                                 <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-600">Kas Umum</span>
-                            @else
+                            @elseif($item->jenis_kas === 'rayon')
                                 <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-purple-50 text-purple-600">Kas Rayon</span>
+                            @else
+                                <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-600">Kas Pembangunan</span>
                             @endif
                         </td>
                         <td class="px-6 py-4 text-right font-semibold text-emerald-600">

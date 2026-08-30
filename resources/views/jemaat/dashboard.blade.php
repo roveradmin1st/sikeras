@@ -142,6 +142,11 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100 text-sm text-slate-700">
                     @forelse($pembayaranJanjiBaru as $bayar)
+                    @php
+                        $cicilanKe = \App\Models\PembayaranJanji::where('id_janji', $bayar->id_janji)
+                            ->where('id_bayar', '<=', $bayar->id_bayar)
+                            ->count();
+                    @endphp
                     <tr class="hover:bg-slate-50/80 transition-colors">
                         <td class="px-6 py-4 whitespace-nowrap text-slate-500 text-xs font-medium">
                             <i data-lucide="calendar" class="w-3 h-3 inline-block mr-1 text-slate-400"></i>
@@ -149,6 +154,7 @@
                         </td>
                         <td class="px-6 py-4">
                             <span class="font-bold text-slate-800 block">{{ $bayar->janjiIman->jemaat->nama_jemaat ?? 'Jemaat (Data Terhapus)' }}</span>
+                            <span class="text-xs text-indigo-500 font-semibold bg-indigo-50 px-2 py-0.5 rounded mt-1 inline-block">Cicilan ke-{{ $cicilanKe }}</span>
                         </td>
                         <td class="px-6 py-4 text-right">
                             <span class="font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg">Rp. {{ number_format($bayar->jumlah_bayar, 0, ',', '.') }}</span>
