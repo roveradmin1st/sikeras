@@ -51,12 +51,17 @@
         <form method="GET" action="{{ route('pembangunan.bayar.index', ['church_slug' => request()->route('church_slug')]) }}" class="flex flex-col md:flex-row md:items-end gap-4">
             
             <div class="w-full md:w-1/4">
-                <label class="block text-xs font-semibold text-slate-600 mb-1.5">Tanggal Spesifik (Opsional)</label>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5">Nama Jemaat</label>
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama jemaat..." class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs text-slate-600">
+            </div>
+
+            <div class="w-full md:w-1/4">
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5">Tanggal Spesifik</label>
                 <input type="date" name="tanggal" value="{{ request('tanggal') }}" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs text-slate-600">
             </div>
 
             <div class="w-full md:w-1/4">
-                <label class="block text-xs font-semibold text-slate-600 mb-1.5">Bulan (Opsional)</label>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5">Bulan</label>
                 <select name="bulan" class="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-xs text-slate-600">
                     <option value="">Semua Bulan</option>
                     @for($m=1; $m<=12; $m++)

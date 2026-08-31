@@ -31,6 +31,7 @@ class BendaharaPembangunanController extends Controller
         $bulan = $request->input('bulan');
         $tahun = $request->input('tahun');
         $tanggal = $request->input('tanggal');
+        $search = $request->input('search');
 
         $query = JanjiIman::with('jemaat')
             ->orderBy('tanggal_mulai', 'asc');
@@ -44,6 +45,12 @@ class BendaharaPembangunanController extends Controller
             if ($tahun) {
                 $query->whereYear('tanggal_mulai', $tahun);
             }
+        }
+
+        if ($search) {
+            $query->whereHas('jemaat', function($q) use ($search) {
+                $q->where('nama_jemaat', 'like', "%{$search}%");
+            });
         }
 
         $items = $query->get();
@@ -116,6 +123,7 @@ class BendaharaPembangunanController extends Controller
         $bulan = $request->input('bulan');
         $tahun = $request->input('tahun');
         $tanggal = $request->input('tanggal');
+        $search = $request->input('search');
 
         $query = PembayaranJanji::with(['janjiIman.jemaat', 'user'])
             ->orderBy('tanggal_bayar', 'asc');
@@ -129,6 +137,12 @@ class BendaharaPembangunanController extends Controller
             if ($tahun) {
                 $query->whereYear('tanggal_bayar', $tahun);
             }
+        }
+
+        if ($search) {
+            $query->whereHas('janjiIman.jemaat', function($q) use ($search) {
+                $q->where('nama_jemaat', 'like', "%{$search}%");
+            });
         }
 
         $items = $query->get();
