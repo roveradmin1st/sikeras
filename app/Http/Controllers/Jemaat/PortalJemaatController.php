@@ -41,7 +41,7 @@ class PortalJemaatController extends Controller
             ->whereHas('transaksi', function($q) {
                 $q->where('status', 'disetujui');
             })
-            ->with(['janjiIman.jemaat'])
+            ->with(['janjiIman.jemaat.rayon'])
             ->orderBy('tanggal_bayar', 'desc')
             ->get();
 

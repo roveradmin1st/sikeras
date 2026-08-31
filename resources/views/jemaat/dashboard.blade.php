@@ -154,6 +154,9 @@
                         </td>
                         <td class="px-6 py-4">
                             <span class="font-bold text-slate-800 block">{{ $bayar->janjiIman->jemaat->nama_jemaat ?? 'Jemaat (Data Terhapus)' }}</span>
+                            @if($bayar->janjiIman->jemaat && $bayar->janjiIman->jemaat->rayon)
+                                <span class="text-xs text-slate-500 block">{{ $bayar->janjiIman->jemaat->rayon->nama_rayon }}</span>
+                            @endif
                             <span class="text-xs text-indigo-500 font-semibold bg-indigo-50 px-2 py-0.5 rounded mt-1 inline-block">Cicilan ke-{{ $cicilanKe }}</span>
                         </td>
                         <td class="px-6 py-4 text-right">
